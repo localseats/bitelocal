@@ -280,14 +280,14 @@ const CITIES=[
   {name:'Bangkok',country:'Thailand',flag:'🇹🇭',landmark:'Wat Arun · Chatuchak',desc:'Street food capital of the world. Every corner hides something delicious.',photo:'https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=800&q=80',href:'map.html?city=Bangkok',live:false},
 ];
 var CITY_META = {
-  'Phnom Penh':{flag:'🇰🇭',landmark:'Independence Monument · Royal Palace',desc:"Cambodia's capital. Street food, riverside cafes, and hidden local gems.",photo:'./images/phnompenh.jpg',pos:'center center'},
-  'Siem Reap': {flag:'🇰🇭',landmark:'Angkor Wat · Pub Street',desc:'Temple town with a booming food scene beyond the tourist strip.',photo:'./images/siemreap.jpg',pos:'center 35%'},
-  'Bangkok':   {flag:'🇹🇭',landmark:'Wat Arun · Chatuchak Market',desc:'Street food capital of the world. Every corner hides something delicious.',photo:'./images/bangkok.jpg',pos:'center 30%'},
-  'Osaka':     {flag:'🇯🇵',landmark:'Dotonbori · Osaka Castle',desc:"Japan kitchen. Takoyaki, okonomiyaki, and endless izakayas.",photo:'https://images.unsplash.com/photo-1589452271712-64b8a66c7b71?w=800&q=80'},
-  'Hiroshima': {flag:'🇯🇵',landmark:'Peace Memorial · Miyajima',desc:'A city of resilience with incredible street food and history.',photo:'./images/hiroshima.jpg',pos:'center 55%'},
-  'Kolkata':   {flag:'🇮🇳',landmark:'Victoria Memorial · Howrah Bridge',desc:'The city of joy. Rich culture and iconic street food on every corner.',photo:'./images/kolkata.jpg',pos:'center 40%'},
-  'Tokyo':     {flag:'🇯🇵',landmark:'Shibuya · Senso-ji',desc:'The ultimate food city. Ramen, sushi, yakitori — every street has a gem.',photo:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80'},
-  'Ho Chi Minh City':{flag:'🇻🇳',landmark:'Ben Thanh Market · Notre-Dame',desc:"Vietnam buzzing metropolis. Pho, banh mi, and endless street food.",photo:'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&q=80'},
+  'Phnom Penh':{flag:'🇰🇭',lat:11.5600,lng:104.9180,landmark:'Independence Monument · Royal Palace',desc:"Cambodia's capital. Street food, riverside cafes, and hidden local gems.",photo:'./images/phnompenh.jpg',pos:'center center'},
+  'Siem Reap': {flag:'🇰🇭',lat:13.3671,lng:103.8448,landmark:'Angkor Wat · Pub Street',desc:'Temple town with a booming food scene beyond the tourist strip.',photo:'./images/siemreap.jpg',pos:'center 35%'},
+  'Bangkok':   {flag:'🇹🇭',lat:13.7563,lng:100.5018,landmark:'Wat Arun · Chatuchak Market',desc:'Street food capital of the world. Every corner hides something delicious.',photo:'./images/bangkok.jpg',pos:'center 30%'},
+  'Osaka':     {flag:'🇯🇵',lat:34.6937,lng:135.5023,landmark:'Dotonbori · Osaka Castle',desc:"Japan kitchen. Takoyaki, okonomiyaki, and endless izakayas.",photo:'https://images.unsplash.com/photo-1589452271712-64b8a66c7b71?w=800&q=80'},
+  'Hiroshima': {flag:'🇯🇵',lat:34.3853,lng:132.4553,landmark:'Peace Memorial · Miyajima',desc:'A city of resilience with incredible street food and history.',photo:'./images/hiroshima.jpg',pos:'center 55%'},
+  'Kolkata':   {flag:'🇮🇳',lat:22.5726,lng:88.3639,landmark:'Victoria Memorial · Howrah Bridge',desc:'The city of joy. Rich culture and iconic street food on every corner.',photo:'./images/kolkata.jpg',pos:'center 40%'},
+  'Tokyo':     {flag:'🇯🇵',lat:35.6762,lng:139.6503,landmark:'Shibuya · Senso-ji',desc:'The ultimate food city. Ramen, sushi, yakitori — every street has a gem.',photo:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80'},
+  'Ho Chi Minh City':{flag:'🇻🇳',lat:10.8231,lng:106.6297,landmark:'Ben Thanh Market · Notre-Dame',desc:"Vietnam buzzing metropolis. Pho, banh mi, and endless street food.",photo:'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=800&q=80'},
 };
 
 function getCityMeta(name){
@@ -297,8 +297,9 @@ function getCityMeta(name){
 function buildCityCard(name, isLive){
   var m = getCityMeta(name);
   var lat = m.lat || ''; var lng = m.lng || ''; var href = 'map.html?city='+encodeURIComponent(name)+(lat?'&lat='+lat+'&lng='+lng:'');
-  var tag = isLive ? 'a href="'+href+'"' : 'div data-disabled';
-  var close = isLive ? 'a' : 'div';
+  // Coming soonでも地図は開けるようにする（data-disabledは見た目のみ）
+  var tag = 'a href="'+href+'"';
+  var close = 'a';
   return '<'+tag+' class="city-card">'
     +'<div class="city-card-img">'
     +'<img src="'+m.photo+'" alt="'+name+'" loading="lazy" style="object-position:'+(m.pos||'center center')+'" />'
