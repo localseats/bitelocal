@@ -659,37 +659,36 @@
       return groups.join(", ");
     }
 
-    // ── Photo upload ───────────────────────────────────────────────────────────
-    const MAX_PHOTOS = 3;
-    const photoFiles = []; // { file, base64, dataUrl, caption }
+    // ── Photo upload (imgbb) ──────────────────────────────────────────────────
+    const MAX_PHOTOS = 1;
+    const photoUrls = []; // imgbb URLs
 
     function renderPhotoGrid() {
       const grid = document.getElementById("photo-grid");
       grid.innerHTML = "";
 
-      photoFiles.forEach((p, i) => {
+      photoUrls.forEach((url, i) => {
         const card = document.createElement("div");
         card.className = "photo-card";
         card.innerHTML = `
           <div class="photo-preview-wrap">
-            <img src="${p.dataUrl}" alt="Photo ${i + 1}" class="photo-img">
+            <img src="${url}" alt="Photo ${i+1}" class="photo-img">
             <button type="button" class="photo-remove-btn" data-idx="${i}" title="Remove">×</button>
           </div>
-          <input type="text" class="photo-caption-input" placeholder="Caption (optional)"
-            maxlength="100" value="${p.caption}">
         `;
-        card.querySelector(".photo-remove-btn").addEventListener("click", () => removePhoto(i));
-        card.querySelector(".photo-caption-input").addEventListener("input", function () {
-          photoFiles[i].caption = this.value;
+        card.querySelector(".photo-remove-btn").addEventListener("click", () => {
+          photoUrls.splice(i, 1);
+          renderPhotoGrid();
         });
         grid.appendChild(card);
       });
 
-      if (photoFiles.length < MAX_PHOTOS) {
+      if (photoUrls.length < MAX_PHOTOS) {
         const btn = document.createElement("button");
         btn.type = "button";
+        btn.id = "photo-add-btn";
         btn.className = "photo-add-btn";
-        btn.innerHTML = `<span class="photo-add-icon">📷</span><span>Add photo</span>`;
+        btn.innerHTML = `<span class="photo-add-icon">📷</span><span>Choose a photo</span>`;
         btn.addEventListener("click", () => document.getElementById("photo-file-input").click());
         grid.appendChild(btn);
       }
@@ -714,45 +713,36 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      // アップロード中表示
-      document.getElementById('photo-pick-btn').textContent = 'Uploading…';
-      document.getElementById('photo-pick-btn').disabled = true;
+      const btn = document.getElementById("photo-add-btn");
+      if (btn) { btn.textContent = "Uploading…"; btn.disabled = true; }
 
       try {
         const base64 = await new Promise((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.onload = () => resolve(reader.result.split(",")[1]);
           reader.onerror = reject;
           reader.readAsDataURL(file);
         });
 
         const form = new FormData();
-        form.append('image', base64);
-        form.append('key', '84ed403c7cd3480fc4d6753c2426e2ff');
+        form.append("image", base64);
+        form.append("key", "84ed403c7cd3480fc4d6753c2426e2ff");
 
-        const res  = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: form });
+        const res  = await fetch("https://api.imgbb.com/1/upload", { method: "POST", body: form });
         const data = await res.json();
 
         if (data.success) {
-          // URLを隠しフィールドに保存
-          document.getElementById('photo-url').value = data.data.url;
-          // プレビュー表示
-          const preview = document.getElementById('photo-preview-wrap');
-          const img = document.getElementById('photo-preview-img');
-          img.src = data.data.url;
-          preview.style.display = 'block';
-          document.getElementById('photo-pick-btn').style.display = 'none';
+          photoUrls.push(data.data.url);
+          renderPhotoGrid();
         } else {
-          alert('Upload failed. Please try again.');
-          document.getElementById('photo-pick-btn').textContent = '📷 Choose a photo from your album';
-          document.getElementById('photo-pick-btn').disabled = false;
+          alert("Upload failed. Please try again.");
+          renderPhotoGrid();
         }
       } catch(err) {
-        alert('Upload error. Please check your connection.');
-        document.getElementById('photo-pick-btn').textContent = '📷 Choose a photo from your album';
-        document.getElementById('photo-pick-btn').disabled = false;
+        alert("Upload error. Please check your connection.");
+        renderPhotoGrid();
       }
-      e.target.value = '';
+      e.target.value = "";
     });
 
     // Initialize grid with "Add photo" button
@@ -827,7 +817,7 @@
         comment:       comment.value.trim(),
         contributor:   document.getElementById("contributor").value.trim(),
         instagram:     document.getElementById("instagram").value.trim(),
-        photos:        document.getElementById("photo-url").value.trim(),
+        photos:        photoUrls[0] || "",
         city:          urlCity,
       };
 
