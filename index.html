@@ -296,7 +296,7 @@ function getCityMeta(name){
 
 function buildCityCard(name, isLive){
   var m = getCityMeta(name);
-  var href = 'map.html?city='+encodeURIComponent(name);
+  var lat = m.lat || ''; var lng = m.lng || ''; var href = 'map.html?city='+encodeURIComponent(name)+(lat?'&lat='+lat+'&lng='+lng:'');
   var tag = isLive ? 'a href="'+href+'"' : 'div data-disabled';
   var close = isLive ? 'a' : 'div';
   return '<'+tag+' class="city-card">'
