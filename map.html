@@ -796,7 +796,16 @@
            </a>`
         : "";
 
+      const photoHtml = post.photos
+        ? `<div style="width:100%;height:200px;overflow:hidden;border-radius:10px;margin-bottom:16px;">
+             <img src="${post.photos}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" />
+           </div>`
+        : "";
+
+      const postIdx = currentPosts.indexOf(post);
+
       document.getElementById("modal-content").innerHTML = `
+        ${photoHtml}
         <div class="modal-spot-name">${spotName || ""}</div>
         <div class="modal-author-row">
           <span class="modal-author-name">${post.contributor || "Anonymous"}</span>
@@ -804,6 +813,13 @@
         </div>
         <div class="modal-comment">${post.comment}</div>
         <div class="modal-date">${formatDate(post.timestamp)}</div>
+        <div style="margin-top:20px;">
+          <button id="modal-like-btn"
+            onclick="likePost(event, ${postIdx}); this.innerHTML='❤️ ' + (${post.likes}+1); this.disabled=true; this.style.borderColor='#E0507A'; this.style.color='#E0507A';"
+            style="display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border:1.5px solid #E2DED8;border-radius:50px;background:#fff;font-size:15px;cursor:pointer;font-weight:500;">
+            ❤️ ${post.likes}
+          </button>
+        </div>
       `;
       document.getElementById("review-modal").classList.remove("hidden");
     }
