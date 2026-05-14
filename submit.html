@@ -405,7 +405,12 @@
         <!-- ── Photos ───────────────────────────────────────────────────────── -->
         <div class="form-section">
           <div class="section-label">Photos <span class="label-hint">Optional · up to 3</span></div>
-          <div class="photo-grid" id="photo-grid"></div>
+          <div style="margin-top:8px;">
+          <input type="url" id="photo-url" placeholder="Paste a photo URL (optional)"
+            style="width:100%;padding:13px 16px;border:1.5px solid #E2DED8;border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:#fff;"
+            onfocus="this.style.borderColor='#BF2010'" onblur="this.style.borderColor='#E2DED8'" />
+          <p style="font-size:12px;color:#A8A39D;margin-top:6px;">Upload your photo to Google Photos, Imgur, etc. and paste the link here.</p>
+        </div>
           <input type="file" id="photo-file-input" accept="image/jpeg,image/png,image/webp" style="display:none">
         </div>
 
@@ -769,6 +774,7 @@
         comment:       comment.value.trim(),
         contributor:   document.getElementById("contributor").value.trim(),
         instagram:     document.getElementById("instagram").value.trim(),
+        photos:        document.getElementById("photo-url").value.trim(),
         city:          urlCity,
       };
 
