@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitelocal — Eat where the locals eat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --white:#FFFFFF; --off:#F8F6F2; --border:#E2DED8;
+      --text:#1A1714; --mid:#6B6560; --dim:#A8A39D;
+      --red:#BF2010; --red2:#991A0D;
+      --font-display:'Playfair Display',Georgia,serif;
+      --font-body:'DM Sans',sans-serif;
+    }
+    html{scroll-behavior:smooth;}
+    body{background:var(--white);color:var(--text);font-family:var(--font-body);font-weight:400;overflow-x:hidden;}
+    #gallery-wrapper{height:350vh;position:relative;}
+    #gallery-scene{position:sticky;top:0;width:100%;height:100vh;overflow:hidden;background:var(--white);perspective:1100px;perspective-origin:50% 46%;}
+    #gallery-scene::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 46%,transparent 25%,rgba(255,255,255,0.95) 100%);pointer-events:none;z-index:10;}
+    #gallery-fade{position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,transparent,var(--white));pointer-events:none;z-index:11;}
+    #gallery-logo{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;}
+    #gallery-logo-name{font-family:var(--font-display);font-size:clamp(56px,10vw,118px);font-weight:700;line-height:1;color:var(--text);animation:riseIn 1.2s 0.2s ease both;}
+    #gallery-logo-name em{font-style:italic;color:var(--red);}
+    #gallery-logo-tagline{margin-top:16px;font-family:var(--font-body);font-size:clamp(10px,1.1vw,12px);font-weight:400;letter-spacing:0.32em;text-transform:uppercase;color:var(--dim);animation:riseIn 1.2s 0.5s ease both;}
+    @keyframes riseIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+    #scroll-hint{position:absolute;bottom:52px;left:50%;transform:translateX(-50%);z-index:20;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--dim);font-size:9px;letter-spacing:0.28em;text-transform:uppercase;pointer-events:none;animation:riseIn 1.5s 0.9s ease both,bobble 2.4s 2s ease-in-out infinite;transition:opacity 0.5s;}
+    #scroll-hint.hide{opacity:0;}
+    @keyframes bobble{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(6px);}}
+    #scroll-hint svg{width:16px;opacity:0.5;}
+    #stage{position:absolute;inset:0;transform-style:preserve-3d;}
+    .photo-card{position:absolute;top:50%;left:50%;transform-style:preserve-3d;border-radius:3px;overflow:hidden;box-shadow:0 2px 8px rgba(26,23,20,0.08),0 8px 24px rgba(26,23,20,0.12),0 20px 48px rgba(26,23,20,0.10);}
+    .photo-card img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;user-select:none;}
+    #main-content{background:var(--white);position:relative;z-index:5;}
+    #topbar{border-bottom:3px solid var(--text);padding:0 48px;display:flex;align-items:stretch;height:60px;}
+    #nav-logo{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;padding-right:32px;border-right:1px solid var(--border);}
+    #nav-logo em{font-style:italic;color:var(--red);}
+    .nav-links{display:flex;list-style:none;flex:1;}
+    .nav-links li a{display:flex;align-items:center;height:100%;padding:0 22px;font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid);text-decoration:none;border-right:1px solid var(--border);transition:color 0.2s;}
+    .nav-links li a:hover{color:var(--text);}
+    #nav-cta{display:flex;align-items:center;padding:0 24px;background:var(--red);color:#fff;font-family:var(--font-body);font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;margin-left:auto;transition:background 0.2s;}
+    #nav-cta:hover{background:var(--red2);}
+    #hero{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}
+    #hero-text{padding:72px 56px 72px 48px;border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:center;}
+    #hero-kicker{font-size:10px;font-weight:500;letter-spacing:0.24em;text-transform:uppercase;color:var(--red);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+    #hero-kicker::before{content:'';display:block;width:20px;height:1.5px;background:var(--red);}
+    #hero h1{font-family:var(--font-display);font-size:clamp(40px,5vw,72px);font-weight:400;line-height:1.1;color:var(--text);margin-bottom:24px;}
+    #hero h1 em{font-style:italic;color:var(--red);}
+    #hero-sub{font-size:15px;font-weight:300;line-height:1.75;color:var(--mid);max-width:380px;margin-bottom:40px;}
+    #search-wrap{display:flex;max-width:400px;border:1.5px solid var(--text);border-radius:2px;overflow:hidden;transition:box-shadow 0.2s;}
+    #search-wrap:focus-within{box-shadow:4px 4px 0 var(--text);}
+    #city-input{flex:1;background:transparent;border:none;outline:none;padding:13px 18px;font-family:var(--font-body);font-size:14px;color:var(--text);}
+    #city-input::placeholder{color:var(--dim);}
+    #search-btn{background:var(--text);border:none;padding:13px 22px;font-family:var(--font-body);font-size:12px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:#fff;cursor:pointer;transition:background 0.2s;white-space:nowrap;}
+    #search-btn:hover{background:var(--red);}
+    #explore-link{display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:12px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--mid);text-decoration:none;transition:color 0.2s;}
+    #explore-link:hover{color:var(--red);}
+    #explore-link svg{width:14px;transition:transform 0.2s;}
+    #explore-link:hover svg{transform:translateX(3px);}
+    #hero-photo{position:relative;overflow:hidden;background:var(--off);min-height:520px;}
+    #hero-collage{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;}
+    #hero-collage img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.5s ease;}
+    #hero-collage img:hover{transform:scale(1.03);}
+    #hero-collage img:first-child{grid-row:1/3;}
+    #live-badge{position:absolute;top:24px;right:24px;background:var(--white);border:1px solid var(--border);border-radius:4px;padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 12px rgba(26,23,20,0.1);}
+    .live-dot{width:8px;height:8px;border-radius:50%;background:#22A06B;animation:livepulse 2s infinite;}
+    @keyframes livepulse{0%,100%{box-shadow:0 0 0 0 rgba(34,160,107,0.4);}50%{box-shadow:0 0 0 5px rgba(34,160,107,0);}}
+    .live-text{font-size:12px;font-weight:500;color:var(--text);}
+    .live-sub{font-size:11px;color:var(--mid);}
+    #photo-strip{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);}
+    #photo-strip::-webkit-scrollbar{display:none;}
+    .strip-photo{flex:0 0 auto;width:200px;height:240px;overflow:hidden;}
+    .strip-photo img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.4s ease;}
+    .strip-photo:hover img{transform:scale(1.05);}
+    #stats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border);}
+    .stat{padding:56px 48px;border-right:1px solid var(--border);}
+    .stat:last-child{border-right:none;}
+    .stat-num{font-family:var(--font-display);font-size:clamp(52px,6vw,80px);font-weight:400;color:var(--text);line-height:1;display:block;}
+    .stat-num span{color:var(--red);}
+    .stat-label{display:block;font-size:10px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--dim);margin-top:14px;}
+    .section-wrap{padding:72px 48px;border-bottom:1px solid var(--border);}
+    .section-header{display:flex;align-items:center;gap:20px;margin-bottom:48px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+    .section-title{font-family:var(--font-display);font-size:clamp(20px,2.2vw,28px);font-weight:400;color:var(--text);white-space:nowrap;}
+    .section-rule{flex:1;height:1px;background:transparent;}
+    .section-tag{font-size:10px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--dim);}
+    .city-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border:1px solid var(--border);background:var(--border);}
+    .city-card{background:var(--white);text-decoration:none;color:var(--text);transition:background 0.2s;display:flex;flex-direction:column;overflow:hidden;}
+    .city-card:hover{background:var(--off);}
+    .city-card[data-disabled]{opacity:0.45;pointer-events:none;}
+    .city-card-img{position:relative;width:100%;height:200px;overflow:hidden;background:var(--off);flex-shrink:0;}
+    .city-card-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.5s ease;}
+    .city-card:hover .city-card-img img{transform:scale(1.05);}
+    .city-flag{position:absolute;top:12px;right:12px;font-size:26px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.3));}
+    .city-status{position:absolute;bottom:12px;left:12px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);border-radius:2px;padding:5px 10px;}
+    .city-dot{width:7px;height:7px;border-radius:50%;background:#22A06B;animation:livepulse 2.2s infinite;flex-shrink:0;}
+    .city-dot.inactive{background:var(--dim);animation:none;}
+    .city-status-text{font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);}
+    .city-card-body{padding:28px 28px 24px;display:flex;flex-direction:column;gap:10px;flex:1;}
+    .city-name{font-family:var(--font-display);font-size:26px;font-weight:400;line-height:1.1;}
+    .city-desc{font-size:13px;line-height:1.65;color:var(--mid);font-weight:300;}
+    .city-landmark{font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);margin-top:2px;}
+    .city-arrow{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);margin-top:8px;}
+    .city-arrow svg{width:14px;transition:transform 0.2s;}
+    .city-card:hover .city-arrow svg{transform:translateX(4px);}
+    .how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border:1px solid var(--border);background:var(--border);border-radius:0;overflow:hidden;margin-top:0;}
+    .how-step{background:var(--white);padding:40px 36px;display:flex;flex-direction:column;gap:16px;}
+    .how-num{font-family:var(--font-display);font-size:40px;font-weight:400;color:var(--border);line-height:1;}
+    .how-title{font-family:var(--font-display);font-size:18px;font-weight:400;color:var(--text);line-height:1.3;}
+    .how-body{font-size:13px;line-height:1.75;color:var(--mid);font-weight:300;}
+    #cta-banner{padding:80px 48px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:48px;background:var(--off);}
+    #cta-banner h2{font-family:var(--font-display);font-size:clamp(28px,3.5vw,52px);font-weight:400;line-height:1.15;}
+    #cta-banner h2 em{font-style:italic;color:var(--red);}
+    .cta-buttons{display:flex;gap:12px;flex-shrink:0;}
+    .btn-primary{background:var(--red);color:#fff;font-family:var(--font-body);font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:14px 30px;border-radius:2px;text-decoration:none;transition:background 0.2s;white-space:nowrap;}
+    .btn-primary:hover{background:var(--red2);}
+    .btn-ghost{border:1.5px solid var(--text);color:var(--text);font-family:var(--font-body);font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:14px 30px;border-radius:2px;text-decoration:none;transition:background 0.2s,color 0.2s;white-space:nowrap;}
+    .btn-ghost:hover{background:var(--text);color:#fff;}
+    footer{padding:32px 48px;display:flex;align-items:center;justify-content:space-between;border-top:3px solid var(--text);}
+    .footer-logo{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);text-decoration:none;}
+    .footer-logo em{font-style:italic;color:var(--red);}
+    footer p{font-size:11px;color:var(--dim);letter-spacing:0.08em;}
+    @media(max-width:860px){#topbar{padding:0 20px;}.nav-links{display:none;}#hero{grid-template-columns:1fr;}#hero-photo{display:none;}#hero-text{padding:56px 24px;border-right:none;}.section-wrap{padding:56px 24px;}#stats{grid-template-columns:1fr;}.stat{border-right:none;border-bottom:1px solid var(--border);padding:36px 24px;}.how-grid{grid-template-columns:1fr;}.city-cards{grid-template-columns:1fr;}#cta-banner{flex-direction:column;align-items:flex-start;padding:56px 24px;}footer{flex-direction:column;gap:12px;padding:24px;text-align:center;}}
+  </style>
+</head>
+<body>
+<div id="gallery-wrapper">
+  <div id="gallery-scene">
+    <div id="stage"></div>
+    <div id="gallery-logo">
+      <div id="gallery-logo-name">Bite<em>local</em></div>
+      <div id="gallery-logo-tagline">Eat where the locals eat</div>
+    </div>
+    <div id="gallery-fade"></div>
+    <div id="scroll-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M12 9v4M5 17l7 5 7-5"/></svg>
+      Scroll to explore
+    </div>
+  </div>
+</div>
+<div id="main-content">
+  <nav id="topbar">
+    <a id="nav-logo" href="index.html">Bite<em>local</em></a>
+    <ul class="nav-links">
+      <li><a href="map.html?city=Phnom%20Penh">Map</a></li>
+      <li><a href="submit.html">Add a spot</a></li>
+      <li><a href="leaderboard.html">Local Heroes</a></li>
+    </ul>
+    <a id="nav-cta" href="map.html?lat=20&lng=0&zoom=2">Explore Map →</a>
+  </nav>
+  <section id="hero">
+    <div id="hero-text">
+      <h1>Eat where the<br /><em>locals eat.</em></h1>
+      <p id="hero-sub">Skip the tourist traps. Discover cafes, bars, and restaurants hand-picked by people who actually live here.</p>
+      <div id="search-outer" style="position:relative;max-width:400px;"><div id="search-wrap">
+        <input id="city-input" type="text" placeholder="Enter a city…" />
+        <button id="search-btn">Explore</button>
+      </div>
+        <div id="autocomplete" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #1A1714;border-top:none;z-index:999;"></div>
+      </div>
+      <a id="explore-link" href="map.html?lat=20&lng=0&zoom=2">Browse the map <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M9 3l5 5-5 5"/></svg></a>
+    </div>
+    <div id="hero-photo">
+      <div id="hero-collage">
+        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="" />
+        <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600" alt="" />
+        <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600" alt="" />
+      </div>
+      <div id="live-badge">
+        <span class="live-dot"></span>
+        <div><div class="live-text">Now live in Phnom Penh</div><div class="live-sub">More cities coming soon</div></div>
+      </div>
+    </div>
+  </section>
+  <div id="photo-strip">
+    <div class="strip-photo"><img src="https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=600" alt="" /></div>
+    <div class="strip-photo"><img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600" alt="" /></div>
+    <div class="strip-photo"><img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600" alt="" /></div>
+    <div class="strip-photo"><img src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600" alt="" /></div>
+    <div class="strip-photo"><img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600" alt="" /></div>
+    <div class="strip-photo"><img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600" alt="" /></div>
+    <div class="strip-photo"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600" alt="" /></div>
+    <div class="strip-photo"><img src="https://images.unsplash.com/photo-1559847844-5315695dadae?w=600" alt="" /></div>
+  </div>
+  <section id="stats">
+    <div class="stat"><span class="stat-num" id="stat-spots"><span>—</span></span><span class="stat-label">Places listed</span></div>
+    <div class="stat"><span class="stat-num" id="stat-cats"><span>—</span></span><span class="stat-label">Categories</span></div>
+    <div class="stat"><span class="stat-num" id="stat-contrib"><span>—</span></span><span class="stat-label">Local contributors</span></div>
+  </section>
+  <section class="section-wrap">
+    <div class="section-header">
+      <h2 class="section-title">Cities</h2>
+      <div class="section-rule"></div>
+      <span class="section-tag">Explore</span>
+    </div>
+    <div class="city-cards" id="city-cards"></div>
+  </section>
+  <section class="section-wrap">
+    <div class="section-header">
+      <h2 class="section-title">How it works</h2>
+      <div class="section-rule"></div>
+      <span class="section-tag">Simple</span>
+    </div>
+    <div class="how-grid">
+      <div class="how-step"><div class="how-num">01</div><div class="how-title">Locals post their favourites</div><div class="how-body">Residents add the spots they actually go to — not the ones on TripAdvisor.</div></div>
+      <div class="how-step"><div class="how-num">02</div><div class="how-title">Browse on the map</div><div class="how-body">Filter by category, read honest comments, and find places worth visiting.</div></div>
+      <div class="how-step"><div class="how-num">03</div><div class="how-title">Like what you find</div><div class="how-body">Give likes to the best spots. Top contributors earn a place on the Local Heroes board.</div></div>
+    </div>
+  </section>
+  <section id="cta-banner">
+    <h2>Know a great spot?<br /><em>Add it to the map.</em></h2>
+    <div class="cta-buttons">
+      <a class="btn-primary" href="submit.html">Add a spot</a>
+      <a class="btn-ghost" href="map.html?city=Phnom%20Penh">Browse first</a>
+    </div>
+  </section>
+  <footer>
+    <a class="footer-logo" href="index.html">Bite<em>local</em></a>
+    <p>© 2026 · Built by a local, for travellers</p>
+  </footer>
+</div>
+<script>
+const PHOTOS=[
+  {url:'https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=600',x:-340,y:-150,rotX:-4,rotY:7,w:310,ar:1.38},
+  {url:'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600',x:280,y:-200,rotX:3,rotY:-5,w:270,ar:1.50},
+  {url:'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600',x:-80,y:140,rotX:-6,rotY:-8,w:340,ar:1.33},
+  {url:'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600',x:370,y:80,rotX:5,rotY:6,w:290,ar:1.25},
+  {url:'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600',x:-400,y:180,rotX:-3,rotY:-4,w:250,ar:1.00},
+  {url:'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600',x:160,y:240,rotX:6,rotY:9,w:300,ar:1.50},
+  {url:'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=600',x:-230,y:-260,rotX:-7,rotY:3,w:280,ar:1.40},
+  {url:'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600',x:410,y:-170,rotX:4,rotY:-7,w:260,ar:1.20},
+  {url:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600',x:-50,y:-320,rotX:-2,rotY:5,w:320,ar:0.90},
+  {url:'https://images.unsplash.com/photo-1473093226795-af9932fe5856?w=600',x:-390,y:-60,rotX:7,rotY:-6,w:240,ar:1.60},
+  {url:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600',x:260,y:290,rotX:-5,rotY:8,w:330,ar:1.33},
+  {url:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=600',x:-110,y:300,rotX:2,rotY:-9,w:275,ar:1.45},
+];
+const DEPTH=5500,RESET=800,NEAR=450;
+const stage=document.getElementById('stage'),els=[];
+PHOTOS.forEach((p,i)=>{
+  const card=document.createElement('div');
+  card.className='photo-card';
+  card.style.width=p.w+'px';
+  card.style.height=Math.round(p.w/p.ar)+'px';
+  const img=document.createElement('img');
+  img.src=p.url;img.alt='';img.loading='lazy';
+  card.appendChild(img);stage.appendChild(card);
+  els.push({card,...p,z:-DEPTH*0.95+(i/PHOTOS.length)*(DEPTH*0.85)});
+});
+let vel=0,tgt=0,scrollZ=0,auto=false,timer=null;
+const wrap=document.getElementById('gallery-wrapper'),hint=document.getElementById('scroll-hint');
+function inGallery(){const r=wrap.getBoundingClientRect();return r.top<=0&&r.bottom>0;}
+function resetIdle(){auto=false;clearTimeout(timer);timer=setTimeout(()=>{auto=true;},3000);}
+resetIdle();
+window.addEventListener('wheel',e=>{if(!inGallery())return;tgt=e.deltaY*0.55;resetIdle();hint.classList.add('hide');},{passive:true});
+window.addEventListener('scroll',()=>{if(window.scrollY>50)hint.classList.add('hide');});
+let ty=0;
+window.addEventListener('touchstart',e=>{ty=e.touches[0].clientY;});
+window.addEventListener('touchmove',e=>{if(!inGallery())return;tgt=(ty-e.touches[0].clientY)*1.4;ty=e.touches[0].clientY;resetIdle();},{passive:true});
+(function animate(){
+  requestAnimationFrame(animate);
+  vel+=auto?(2.8-vel)*0.04:(tgt-vel)*0.15;
+  if(!auto)tgt*=0.92;
+  scrollZ+=vel;
+  els.forEach(el=>{
+    let z=el.z+scrollZ;
+    while(z>RESET)z-=DEPTH;while(z<-DEPTH)z+=DEPTH;
+    el.z=z-scrollZ;
+    const nf=z>NEAR?1-(z-NEAR)/(RESET-NEAR):1;
+    const ff=((z+DEPTH)/DEPTH)<0.1?((z+DEPTH)/DEPTH)/0.1:1;
+    el.card.style.transform=`translate(calc(-50% + ${el.x}px),calc(-50% + ${el.y}px)) translateZ(${z}px) rotateX(${el.rotX}deg) rotateY(${el.rotY}deg)`;
+    el.card.style.opacity=Math.max(0,Math.min(1,nf*ff));
+    el.card.style.filter=z>200?`blur(${((z-200)/100).toFixed(1)}px)`:'none';
+    el.card.style.zIndex=Math.round(z+DEPTH);
+  });
+})();
+const CITIES=[
+  {name:'Phnom Penh',country:'Cambodia',flag:'🇰🇭',landmark:'Independence Monument · Royal Palace',desc:"Cambodia's capital. Street food, riverside cafes, and hidden local gems.",photo:'./images/phnompenh.jpg',href:'map.html?city=Phnom%20Penh',live:true},
+  {name:'Siem Reap',country:'Cambodia',flag:'🇰🇭',landmark:'Angkor Wat · Pub Street',desc:'Temple town with a booming food scene beyond the tourist strip.',photo:'./images/siemreap.jpg',href:'map.html?city=Siem%20Reap',live:false},
+  {name:'Bangkok',country:'Thailand',flag:'🇹🇭',landmark:'Wat Arun · Chatuchak',desc:'Street food capital of the world. Every corner hides something delicious.',photo:'./images/bangkok.jpg',href:'map.html?city=Bangkok',live:false},
+];
+function renderCities(){
+  const c=document.getElementById('city-cards');
+  if(!c)return;
+  c.innerHTML=CITIES.map(city=>`
+    <${city.live?`a href="${city.href}"` :'div data-disabled'} class="city-card">
+      <div class="city-card-img">
+        <img src="${city.photo}" alt="${city.name}" loading="lazy" />
+        <span class="city-flag">${city.flag}</span>
+        <div class="city-status">
+          <span class="city-dot ${city.live?'':'inactive'}"></span>
+          <span class="city-status-text">${city.live?'Live now':'Coming soon'}</span>
+        </div>
+      </div>
+      <div class="city-card-body">
+        <div class="city-name">${city.name}</div>
+        <div class="city-landmark">${city.landmark}</div>
+        <div class="city-desc">${city.desc}</div>
+        ${city.live?`<div class="city-arrow">Explore <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h12M9 3l5 5-5 5"/></svg></div>`:''}
+      </div>
+    </${city.live?'a':'div'}>
+  `).join('');
+}
+renderCities();
+
+fetch('https://script.google.com/macros/s/AKfycbxOx6QRzdQ5Ewo-MRNMMoh_-wGCuLGGrTENG3skLKLFgERhUEJ4Y5EI0a5tmSrf3MzR_w/exec')
+  .then(r=>r.json()).then(data=>{
+    const s=Array.isArray(data)?data:[];
+    count('stat-spots',s.length);
+    count('stat-cats',new Set(s.map(x=>x.category).filter(Boolean)).size||5);
+    count('stat-contrib',new Set(s.map(x=>x.contributor).filter(Boolean)).size);
+  }).catch(()=>{document.getElementById('stat-cats').innerHTML='<span>5</span>';});
+function count(id,target){
+  const el=document.getElementById(id);if(!el)return;
+  new IntersectionObserver(([e],obs)=>{
+    if(!e.isIntersecting)return;obs.disconnect();
+    const t0=performance.now();
+    (function step(now){const p=Math.min((now-t0)/1200,1);el.innerHTML=`<span>${Math.round((1-Math.pow(1-p,3))*target)}</span>`;if(p<1)requestAnimationFrame(step);})(t0);
+  },{threshold:0.3}).observe(el);
+}
+
+// Fixed search
+function searchCity(){
+  var c=document.getElementById('city-input').value.trim();
+  window.location.href='map.html?city='+encodeURIComponent(c||'Phnom Penh');
+}
+document.getElementById('city-input').addEventListener('keydown',function(e){if(e.key==='Enter')searchCity();});
+
+// Autocomplete
+(function(){
+  var wrap=document.getElementById('search-wrap');
+  var input=document.getElementById('city-input');
+  wrap.style.position='relative';
+  var box=document.createElement('div');
+  box.style.cssText='position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #1A1714;border-top:none;z-index:999;display:none;';
+  wrap.appendChild(box);
+  input.addEventListener('input',function(){
+    var v=input.value.toLowerCase().trim();
+    if(!v){box.style.display='none';return;}
+    var hits=CITIES.filter(function(c){return c.name.toLowerCase().indexOf(v)>=0;});
+    if(!hits.length){box.style.display='none';return;}
+    box.innerHTML=hits.map(function(c){
+      return '<div style="padding:12px 18px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #E2DED8;" onclick="window.location.href=\'map.html?city='+encodeURIComponent(c.name)+'\'">'
+        +c.flag+' '+c.name+(c.live?' <span style="font-size:10px;color:#22A06B;margin-left:auto;">Live</span>':'')+'</div>';
+    }).join('');
+    box.style.display='block';
+  });
+  document.addEventListener('click',function(e){if(!wrap.contains(e.target))box.style.display='none';});
+})();
+
+
+// Search fix
+(function(){
+  var input=document.getElementById('city-input');
+  var btn=document.getElementById('search-btn');
+  var box=document.getElementById('autocomplete');
+  if(!input||!btn||!box)return;
+
+  function go(name){
+    window.location.href='map.html?city='+encodeURIComponent(name||'Phnom Penh');
+  }
+
+  btn.addEventListener('click',function(){
+    go(input.value.trim());
+  });
+
+  input.addEventListener('keydown',function(e){
+    if(e.key==='Enter') go(input.value.trim());
+  });
+
+  var debounceTimer=null;
+  input.addEventListener('input',function(){
+    var v=input.value.trim();
+    box.innerHTML='';
+    box.style.display='none';
+    if(!v) return;
+
+    // まず既存都市を先頭に表示
+    var local=typeof CITIES!=='undefined'?CITIES.filter(function(c){
+      return c.name.toLowerCase().indexOf(v.toLowerCase())>=0;
+    }):[];
+
+    clearTimeout(debounceTimer);
+    debounceTimer=setTimeout(function(){
+      fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(v)+'&count=6&language=en&format=json')
+        .then(function(r){return r.json();})
+        .then(function(data){
+          box.innerHTML='';
+          var results=data.results||[];
+          // 既存都市（ライブバッジ付き）
+          local.forEach(function(c){
+            var d=document.createElement('div');
+            d.style.cssText='padding:12px 18px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #E2DED8;';
+            d.innerHTML=c.flag+' '+c.name+', '+c.country+(c.live?' <span style="font-size:10px;color:#22A06B;margin-left:auto;font-weight:500;letter-spacing:0.08em;">LIVE</span>':'');
+            d.addEventListener('mouseenter',function(){this.style.background='#F8F6F2';});
+            d.addEventListener('mouseleave',function(){this.style.background='';});
+            d.addEventListener('click',function(){go(c.name);});
+            box.appendChild(d);
+          });
+          // APIから取得した都市（重複除外）
+          var localNames=local.map(function(c){return c.name.toLowerCase();});
+          results.forEach(function(r){
+            if(localNames.indexOf(r.name.toLowerCase())>=0) return;
+            var d=document.createElement('div');
+            d.style.cssText='padding:12px 18px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #E2DED8;color:#1A1714;';
+            var label=r.name+(r.admin1?', '+r.admin1:'')+(r.country_code?' ('+r.country_code+')':'');
+            d.textContent=label;
+            d.addEventListener('mouseenter',function(){this.style.background='#F8F6F2';});
+            d.addEventListener('mouseleave',function(){this.style.background='';});
+            d.addEventListener('click',(function(result){
+      return function(){
+        window.location.href='map.html?city='+encodeURIComponent(result.name)+'&lat='+result.latitude+'&lng='+result.longitude;
+      };
+    })(r));
+            box.appendChild(d);
+          });
+          if(box.children.length>0) box.style.display='block';
+        }).catch(function(){
+          // APIエラー時はローカルのみ表示
+          if(local.length){
+            local.forEach(function(c){
+              var d=document.createElement('div');
+              d.style.cssText='padding:12px 18px;cursor:pointer;font-size:14px;border-bottom:1px solid #E2DED8;';
+              d.textContent=c.name;
+              d.addEventListener('click',function(){go(c.name);});
+              box.appendChild(d);
+            });
+            box.style.display='block';
+          }
+        });
+    },300);
+  });
+
+  document.addEventListener('click',function(e){
+    var outer=document.getElementById('search-outer');
+    if(outer&&!outer.contains(e.target)) box.style.display='none';
+  });
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Map — Bitelocal</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:      #C8553D;
+      --primary-dark: #A03E2B;
+      --accent:       #2D6A4F;
+      --bg:           #FAFAF7;
+      --surface:      #FFFFFF;
+      --text:         #1C1C1E;
+      --text-sub:     #6E6E73;
+      --border:       #E5E5E0;
+      --header-h:     56px;
+      --catbar-h:     52px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ── Header ──────────────────────────────────────────────────────────── */
+    .map-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: var(--header-h);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-btn {
+      display: flex; align-items: center; gap: 4px;
+      color: var(--primary); font-size: 14px; font-weight: 600;
+      padding: 8px; margin-left: -8px; border-radius: 8px;
+      text-decoration: none; transition: background .15s;
+    }
+    .back-btn:hover { background: rgba(200,85,61,.08); }
+    .back-arrow { font-size: 20px; line-height: 1; }
+
+    .header-title { font-size: 17px; font-weight: 900; letter-spacing: -.3px; color: var(--primary); }
+
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+
+    .leaderboard-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(200,85,61,.08);
+      font-size: 18px; text-decoration: none;
+      transition: background .15s;
+    }
+    .leaderboard-btn:hover { background: rgba(200,85,61,.16); }
+
+    .add-btn {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--primary); color: #fff;
+      border: none; font-size: 13px; font-weight: 700;
+      padding: 7px 14px; border-radius: 999px;
+      cursor: pointer; font-family: inherit;
+      transition: background .15s;
+    }
+    .add-btn:hover { background: var(--primary-dark); }
+
+    /* ── Category bar ────────────────────────────────────────────────────── */
+    .category-bar {
+      position: fixed;
+      top: var(--header-h); left: 0; right: 0; z-index: 100;
+      height: var(--catbar-h);
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .category-bar::-webkit-scrollbar { display: none; }
+
+    .chip {
+      flex-shrink: 0;
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 14px; border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text-sub);
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      font-family: inherit;
+      transition: all .15s;
+    }
+    .chip:hover  { border-color: var(--primary); color: var(--primary); background: rgba(200,85,61,.04); }
+    .chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    /* ── Map ─────────────────────────────────────────────────────────────── */
+    #map {
+      position: fixed;
+      top: calc(var(--header-h) + var(--catbar-h));
+      left: 0; right: 0; bottom: 0;
+      height: calc(100vh - var(--header-h) - var(--catbar-h));
+    }
+
+    .map-placeholder {
+      position: fixed;
+      top: calc(var(--header-h) + var(--catbar-h));
+      left: 0; right: 0; bottom: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; background: #F0EDE6; z-index: 10;
+    }
+    .map-placeholder.hidden { display: none; }
+    .placeholder-icon { font-size: 40px; }
+    .placeholder-text { font-size: 14px; color: var(--text-sub); }
+
+    /* ── Overlay ─────────────────────────────────────────────────────────── */
+    .map-overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,.28);
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s;
+    }
+    .map-overlay.visible { opacity: 1; pointer-events: auto; }
+
+    /* ── Bottom sheet ────────────────────────────────────────────────────── */
+    .bottom-sheet {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 400;
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -4px 32px rgba(0,0,0,.15);
+      transform: translateY(100%);
+      transition: transform .35s cubic-bezier(.33,1,.68,1);
+      max-height: 80vh;
+      display: flex; flex-direction: column;
+    }
+    .bottom-sheet.open { transform: translateY(0); }
+
+    .sheet-handle-area {
+      padding: 12px 0 6px;
+      display: flex; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .sheet-handle { width: 36px; height: 4px; border-radius: 2px; background: var(--border); }
+
+    .sheet-scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; padding: 4px 20px 48px; }
+
+    .sheet-header {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+      margin-bottom: 14px;
+    }
+    .category-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 999px; margin-bottom: 7px;
+    }
+    .badge-restaurant  { background: rgba(200,85,61,.12);  color: var(--primary); }
+    .badge-cafe        { background: rgba(232,144,58,.14); color: #C07828; }
+    .badge-bar         { background: rgba(45,106,79,.12);  color: var(--accent); }
+    .badge-halal       { background: rgba(26,107,138,.12); color: #1A6B8A; }
+    .badge-vegetarian  { background: rgba(74,140,63,.12);  color: #4A8C3F; }
+
+    #sheet-name { font-size: 22px; font-weight: 800; letter-spacing: -.5px; line-height: 1.2; }
+
+    .close-btn {
+      flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
+      background: var(--bg); border: none; cursor: pointer;
+      font-size: 14px; color: var(--text-sub);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .close-btn:hover { background: var(--border); }
+
+    .info-list { display: flex; flex-direction: column; gap: 8px; }
+    .info-list:not(:empty) { margin-bottom: 16px; }
+    .info-row  { display: flex; align-items: flex-start; gap: 10px; }
+    .info-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+    .info-text { font-size: 14px; color: var(--text-sub); line-height: 1.55; }
+
+    .btn-gmaps {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: #1A73E8; color: #fff;
+      font-size: 15px; font-weight: 700;
+      padding: 14px; border-radius: 12px;
+      text-decoration: none; font-family: inherit;
+      margin-bottom: 24px;
+      transition: background .15s, transform .1s;
+    }
+    .btn-gmaps:hover { background: #1558B0; transform: scale(1.01); }
+
+    /* ── LOCAL POSTS section ─────────────────────────────────────────────── */
+    .posts-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--text-sub); margin-bottom: 12px;
+    }
+
+    .post-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .post-card:hover { background: #F0EDE8; border-color: rgba(200,85,61,.25); }
+
+    .post-meta {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 7px;
+    }
+    .post-author { font-size: 13px; font-weight: 700; color: var(--text); }
+    .ig-link { font-size: 16px; text-decoration: none; opacity: .7; transition: opacity .15s; line-height: 1; }
+    .ig-link:hover { opacity: 1; }
+
+    .post-comment-preview { font-size: 14px; color: var(--text-sub); line-height: 1.55; margin-bottom: 10px; }
+
+    .post-footer { display: flex; align-items: center; }
+    .like-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: none; border: 1.5px solid var(--border);
+      border-radius: 999px; padding: 4px 12px;
+      font-size: 13px; font-weight: 600; color: var(--text-sub);
+      cursor: pointer; font-family: inherit;
+      transition: all .15s;
+    }
+    .like-btn:hover:not(:disabled) {
+      border-color: #E0507A; color: #E0507A; background: rgba(224,80,122,.06);
+    }
+    .like-btn.liked { border-color: #E0507A; color: #E0507A; }
+    .like-btn:disabled { opacity: .5; cursor: default; }
+
+    /* ── Review modal ────────────────────────────────────────────────────── */
+    .review-modal {
+      position: fixed; inset: 0; z-index: 500;
+      display: flex; align-items: flex-end;
+    }
+    .review-modal.hidden { display: none; }
+
+    .modal-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,.5);
+    }
+    .modal-card {
+      position: relative; z-index: 1;
+      width: 100%; max-height: 82vh;
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      overflow-y: auto;
+      padding: 20px 20px 52px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .modal-handle-area {
+      display: flex; justify-content: center; margin-bottom: 16px;
+    }
+    .modal-handle { width: 36px; height: 4px; border-radius: 2px; background: var(--border); }
+
+    .modal-close-btn {
+      position: absolute; top: 20px; right: 20px;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--bg); border: none;
+      font-size: 13px; color: var(--text-sub);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .modal-close-btn:hover { background: var(--border); }
+
+    .modal-spot-name {
+      font-size: 13px; font-weight: 700; color: var(--primary);
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px;
+    }
+    .modal-author-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px;
+    }
+    .modal-author-name { font-size: 17px; font-weight: 800; color: var(--text); }
+    .modal-ig-link {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 600;
+    }
+    .modal-ig-link:hover { text-decoration: underline; }
+
+    .modal-comment {
+      font-size: 15px; line-height: 1.85; color: var(--text);
+      margin-bottom: 20px;
+      white-space: pre-wrap;
+    }
+    .modal-date { font-size: 12px; color: var(--text-sub); }
+
+    /* ── Loading overlay ─────────────────────────────────────────────────── */
+    .loading-overlay {
+      position: fixed;
+      top: calc(var(--header-h) + var(--catbar-h) + 16px);
+      left: 50%; transform: translateX(-50%);
+      z-index: 150;
+      pointer-events: none;
+    }
+    .loading-overlay.hidden { display: none; }
+    .loading-card {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.14);
+      font-size: 13px; font-weight: 600; color: var(--text-sub);
+      white-space: nowrap;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-spinner {
+      width: 15px; height: 15px; flex-shrink: 0;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+  
+    /* City search in header */
+    #city-search-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    #city-search-input {
+      width: 200px;
+      padding: 7px 14px;
+      font-size: 13px;
+      border: 1.5px solid #E2DED8;
+      border-radius: 2px;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s, width 0.3s;
+      background: #fff;
+    }
+    #city-search-input:focus {
+      border-color: #1A1714;
+      width: 260px;
+    }
+    #city-search-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 280px;
+      background: #fff;
+      border: 1.5px solid #1A1714;
+      border-top: none;
+      z-index: 9999;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .city-search-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      border-bottom: 1px solid #E2DED8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .city-search-item:last-child { border-bottom: none; }
+    .city-search-item:hover { background: #F8F6F2; }
+    .city-search-live {
+      font-size: 10px;
+      color: #22A06B;
+      margin-left: auto;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+    }
+
+  
+    #gps-btn {
+      position: absolute;
+      bottom: 120px;
+      right: 12px;
+      z-index: 999;
+      width: 40px;
+      height: 40px;
+      background: #fff;
+      border: none;
+      border-radius: 2px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    #gps-btn:hover { background: #F8F6F2; }
+    #gps-btn.active { background: #E8F4FD; }
+    #gps-btn svg { width: 20px; height: 20px; }
+
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ──────────────────────────────────────────────────────────────── -->
+  <header class="map-header">
+    <a href="index.html" class="back-btn">
+      <span class="back-arrow">‹</span>
+      <span>Back</span>
+    </a>
+    <span class="header-title">Bite<span style="color:var(--text)">local</span></span>
+    <div class="header-actions">
+    <div id="city-search-wrap">
+      <input id="city-search-input" type="text" placeholder="Search a city…" autocomplete="off" />
+      <div id="city-search-dropdown"></div>
+    </div>
+      <a id="leaderboard-link" href="leaderboard.html" class="leaderboard-btn" title="Leaderboard">🏆</a>
+      <button class="add-btn" onclick="goToSubmit()">+ Add Spot</button>
+    </div>
+  </header>
+
+  <!-- ── Category filter bar ─────────────────────────────────────────────────── -->
+  <div class="category-bar">
+    <button class="chip active" data-category="all">🍽 All</button>
+    <button class="chip" data-category="restaurant">🍜 Restaurant</button>
+    <button class="chip" data-category="cafe">☕ Cafe</button>
+    <button class="chip" data-category="bar">🍺 Bar</button>
+    <button class="chip" data-category="halal">🌙 Halal</button>
+    <button class="chip" data-category="vegetarian">🥗 Vegetarian</button>
+  </div>
+
+  <div class="map-placeholder" id="map-placeholder">
+    <span class="placeholder-icon">🗺</span>
+    <span class="placeholder-text">Loading map…</span>
+  </div>
+
+  <div id="map"></div>
+  <button id="gps-btn" title="Show my location">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#1A1714" stroke-width="1.8">
+      <circle cx="12" cy="12" r="3" fill="#BF2010" stroke="none"/>
+      <circle cx="12" cy="12" r="7"/>
+      <line x1="12" y1="2" x2="12" y2="5"/>
+      <line x1="12" y1="19" x2="12" y2="22"/>
+      <line x1="2" y1="12" x2="5" y2="12"/>
+      <line x1="19" y1="12" x2="22" y2="12"/>
+    </svg>
+  </button>
+
+  <!-- ── Loading overlay ────────────────────────────────────────────────────────── -->
+  <div class="loading-overlay hidden" id="loading-overlay">
+    <div class="loading-card">
+      <div class="loading-spinner"></div>
+      Loading local spots…
+    </div>
+  </div>
+
+  <!-- ── Overlay ─────────────────────────────────────────────────────────────── -->
+  <div class="map-overlay" id="map-overlay" onclick="hideSheet()"></div>
+
+  <!-- ── Bottom sheet ────────────────────────────────────────────────────────── -->
+  <div class="bottom-sheet" id="bottom-sheet">
+    <div class="sheet-handle-area" onclick="hideSheet()">
+      <div class="sheet-handle"></div>
+    </div>
+    <div class="sheet-scroll">
+
+      <div class="sheet-header">
+        <div>
+          <div id="sheet-badge" class="category-badge"></div>
+          <h2 id="sheet-name"></h2>
+        </div>
+        <button class="close-btn" onclick="hideSheet()">✕</button>
+      </div>
+
+      <div class="info-list" id="info-list">
+        <div class="info-row" id="hours-row">
+          <span class="info-icon">🕐</span>
+          <span class="info-text" id="sheet-hours"></span>
+        </div>
+        <div class="info-row" id="price-row">
+          <span class="info-icon">💰</span>
+          <span class="info-text" id="sheet-price"></span>
+        </div>
+      </div>
+
+      <a id="sheet-gmaps-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-gmaps">
+        🗺 Open in Google Maps
+      </a>
+
+      <div class="posts-label">LOCAL POSTS</div>
+      <div id="posts-list"></div>
+
+    </div>
+  </div>
+
+  <!-- ── Review modal ────────────────────────────────────────────────────────── -->
+  <div class="review-modal hidden" id="review-modal">
+    <div class="modal-backdrop" onclick="closeModal()"></div>
+    <div class="modal-card">
+      <div class="modal-handle-area"><div class="modal-handle"></div></div>
+      <button class="modal-close-btn" onclick="closeModal()">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <script>
+    const GAS_URL   = "https://script.google.com/macros/s/AKfycbxOx6QRzdQ5Ewo-MRNMMoh_-wGCuLGGrTENG3skLKLFgERhUEJ4Y5EI0a5tmSrf3MzR_w/exec";
+    const cityParam = new URLSearchParams(window.location.search).get("city") || "Phnom Penh";
+    const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+    document.getElementById("leaderboard-link").href =
+      "leaderboard.html?city=" + encodeURIComponent(cityParam);
+    const cacheKey  = `bitelocal_spots_${cityParam.replace(/\s+/g, "_").toLowerCase()}`;
+
+    function goToSubmit() {
+      const p = new URLSearchParams(window.location.search);
+      const q = new URLSearchParams();
+      if (p.get("lat"))  q.set("lat",  p.get("lat"));
+      if (p.get("lng"))  q.set("lng",  p.get("lng"));
+      if (p.get("city")) q.set("city", p.get("city"));
+      const qs = q.toString();
+      location.href = "submit.html" + (qs ? "?" + qs : "");
+    }
+
+    const CATEGORIES = {
+      restaurant:  { label: "Restaurant",  color: "#C8553D", badgeClass: "badge-restaurant",  emoji: "🍜" },
+      cafe:        { label: "Cafe",        color: "#E8903A", badgeClass: "badge-cafe",         emoji: "☕" },
+      bar:         { label: "Bar",         color: "#2D6A4F", badgeClass: "badge-bar",           emoji: "🍺" },
+      halal:       { label: "Halal",       color: "#1A6B8A", badgeClass: "badge-halal",        emoji: "🌙" },
+      vegetarian:  { label: "Vegetarian",  color: "#4A8C3F", badgeClass: "badge-vegetarian",   emoji: "🥗" },
+    };
+
+    let map;
+    let markers = [];
+    let activeCategory = "all";
+    let currentPosts   = [];
+
+    function initMap() {
+      document.getElementById("map-placeholder").classList.add("hidden");
+
+      const params    = new URLSearchParams(window.location.search);
+      const centerLat = parseFloat(params.get("lat")) || 20;
+      const centerLng = parseFloat(params.get("lng")) || 0;
+      const initZoom  = params.has("zoom") ? parseInt(params.get("zoom")) : (params.has("lat") ? 13 : 2);
+
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: centerLat, lng: centerLng },
+        zoom: initZoom,
+        disableDefaultUI: true,
+        zoomControl: true,
+        zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
+        styles: [
+          { featureType: "poi",           elementType: "labels",   stylers: [{ visibility: "off" }] },
+          { featureType: "transit",                                 stylers: [{ visibility: "simplified" }] },
+          { featureType: "water",                                   stylers: [{ color: "#B8D4E2" }] },
+          { featureType: "landscape",                               stylers: [{ color: "#F2EFE9" }] },
+          { featureType: "road",          elementType: "geometry", stylers: [{ color: "#FFFFFF" }] },
+          { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#F5F1EB" }] },
+        ],
+      });
+
+      map.addListener("click", hideSheet);
+      loadSpots();
+    }
+
+    function normalizeRow(row) {
+      return {
+        _row:          row._row || 0,
+        name:          String(row.name          || "").trim(),
+        category:      String(row.category      || "restaurant").toLowerCase().trim(),
+        lat:           parseFloat(row.lat)  || 0,
+        lng:           parseFloat(row.lng)  || 0,
+        opening_hours: String(row.opening_hours || row.hours || "").trim(),
+        price:         String(row.price         || "").trim(),
+        comment:       String(row.comment       || "").trim(),
+        contributor:   String(row.contributor   || "").trim(),
+        instagram:     String(row.instagram     || "").trim(),
+        likes:         parseInt(row.likes)  || 0,
+        timestamp:     row.timestamp        || "",
+      };
+    }
+
+    // ── Cache helpers ─────────────────────────────────────────────────────
+    function getCached() {
+      try {
+        const raw = localStorage.getItem(cacheKey);
+        if (!raw) return null;
+        const { ts, data } = JSON.parse(raw);
+        return (Date.now() - ts < CACHE_TTL) ? data : null;
+      } catch (e) { return null; }
+    }
+
+    function setCache(rows) {
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: rows }));
+      } catch (e) {}
+    }
+
+    function showLoading() { document.getElementById("loading-overlay").classList.remove("hidden"); }
+    function hideLoading() { document.getElementById("loading-overlay").classList.add("hidden"); }
+
+    function clearMarkers() {
+      markers.forEach(m => m.setMap(null));
+      markers = [];
+    }
+
+    function fetchFromGAS() {
+      return fetch(GAS_URL)
+        .then(res => res.json())
+        .then(rows => Array.isArray(rows) ? rows : [])
+        .catch(err => { console.error("Failed to load spots:", err); return null; });
+    }
+
+    function renderSpots(rows) {
+      const spots = rows.map(normalizeRow);
+      const groups = {};
+      spots.forEach(spot => {
+        if (!spot.name || !spot.lat || !spot.lng) return;
+        if (!groups[spot.name]) {
+          groups[spot.name] = {
+            name: spot.name, category: spot.category,
+            lat: spot.lat, lng: spot.lng,
+            opening_hours: spot.opening_hours, price: spot.price,
+            posts: []
+          };
+        }
+        if (!groups[spot.name].opening_hours && spot.opening_hours)
+          groups[spot.name].opening_hours = spot.opening_hours;
+        if (!groups[spot.name].price && spot.price)
+          groups[spot.name].price = spot.price;
+        groups[spot.name].posts.push(spot);
+      });
+      Object.values(groups).forEach(addMarker);
+    }
+
+    function loadSpots() {
+      const cached = getCached();
+
+      if (cached) {
+        // Instant render from cache; refresh silently in background
+        renderSpots(cached);
+        fetchFromGAS().then(fresh => {
+          if (fresh) {
+            clearMarkers();
+            renderSpots(fresh);
+            setCache(fresh);
+          }
+        });
+      } else {
+        // No cache — show loading overlay until data arrives
+        showLoading();
+        fetchFromGAS().then(fresh => {
+          hideLoading();
+          if (fresh) {
+            renderSpots(fresh);
+            setCache(fresh);
+          }
+        });
+      }
+    }
+
+    function markerIcon(color) {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44">
+        <filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".25"/></filter>
+        <path filter="url(#sh)"
+          d="M18 0C8.06 0 0 8.059 0 18c0 13.5 18 26 18 26S36 31.5 36 18C36 8.06 27.94 0 18 0z"
+          fill="${color}"/>
+        <circle cx="18" cy="17" r="8" fill="white" opacity=".92"/>
+      </svg>`;
+      return {
+        url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+        scaledSize: new google.maps.Size(36, 44),
+        anchor: new google.maps.Point(18, 44),
+      };
+    }
+
+    function addMarker(group) {
+      const cat = CATEGORIES[group.category] || CATEGORIES.restaurant;
+      const marker = new google.maps.Marker({
+        position: { lat: group.lat, lng: group.lng },
+        map,
+        title: group.name,
+        icon: markerIcon(cat.color),
+        animation: google.maps.Animation.DROP,
+      });
+      marker._data = group;
+      markers.push(marker);
+
+      marker.addListener("click", (e) => {
+        e.stop();
+        showSheet(group);
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(() => marker.setAnimation(null), 700);
+      });
+    }
+
+    document.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        activeCategory = chip.dataset.category;
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        markers.forEach(m => {
+          m.setVisible(activeCategory === "all" || m._data.category === activeCategory);
+        });
+      });
+    });
+
+    function showSheet(group) {
+      const cat = CATEGORIES[group.category] || CATEGORIES.restaurant;
+
+      const badge = document.getElementById("sheet-badge");
+      badge.textContent = `${cat.emoji} ${cat.label}`;
+      badge.className   = `category-badge ${cat.badgeClass}`;
+
+      document.getElementById("sheet-name").textContent = group.name;
+
+      const hoursEl  = document.getElementById("sheet-hours");
+      const hoursRow = document.getElementById("hours-row");
+      hoursEl.textContent    = group.opening_hours;
+      hoursRow.style.display = group.opening_hours ? "" : "none";
+
+      const priceEl  = document.getElementById("sheet-price");
+      const priceRow = document.getElementById("price-row");
+      priceEl.textContent    = group.price;
+      priceRow.style.display = group.price ? "" : "none";
+
+      const infoList = document.getElementById("info-list");
+      if (infoList) infoList.style.marginBottom = (group.opening_hours || group.price) ? "16px" : "0";
+
+      document.getElementById("sheet-gmaps-btn").href =
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(group.name + " " + cityParam)}`;
+
+      renderPosts(group.posts, group.name);
+
+      document.getElementById("bottom-sheet").classList.add("open");
+      document.getElementById("map-overlay").classList.add("visible");
+    }
+
+    function renderPosts(posts, spotName) {
+      currentPosts = posts;
+      const list = document.getElementById("posts-list");
+      list.innerHTML = "";
+
+      posts.forEach((post, idx) => {
+        const card = document.createElement("div");
+        card.className = "post-card";
+        card.addEventListener("click", () => openPostModal(post, spotName));
+
+        const igHandle = post.instagram.replace(/^@/, "");
+        const igHtml   = igHandle
+          ? `<a href="https://instagram.com/${igHandle}" target="_blank" rel="noopener"
+               class="ig-link" onclick="event.stopPropagation()" title="@${igHandle}">📷</a>`
+          : "";
+
+        const preview = post.comment.length > 50
+          ? post.comment.slice(0, 50) + "…"
+          : post.comment;
+
+        card.innerHTML = `
+          <div class="post-meta">
+            <span class="post-author">${post.contributor || "Anonymous"}</span>
+            ${igHtml}
+          </div>
+          <div class="post-comment-preview">${preview}</div>
+          <div class="post-footer">
+            <button class="like-btn" data-idx="${idx}" onclick="likePost(event, ${idx})">
+              ❤️ <span class="like-count">${post.likes}</span>
+            </button>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function likePost(event, idx) {
+      event.stopPropagation();
+      const post = currentPosts[idx];
+      if (!post || !post._row) return;
+
+      post.likes += 1;
+      const btn = event.currentTarget;
+      btn.querySelector(".like-count").textContent = post.likes;
+      btn.classList.add("liked");
+      btn.disabled = true;
+
+      fetch(`${GAS_URL}?action=like&row=${post._row}`).catch(() => {});
+    }
+
+    function openPostModal(post, spotName) {
+      const igHandle = post.instagram.replace(/^@/, "");
+      const igHtml   = igHandle
+        ? `<a href="https://instagram.com/${igHandle}" target="_blank" rel="noopener" class="modal-ig-link">
+             📷 @${igHandle}
+           </a>`
+        : "";
+
+      document.getElementById("modal-content").innerHTML = `
+        <div class="modal-spot-name">${spotName || ""}</div>
+        <div class="modal-author-row">
+          <span class="modal-author-name">${post.contributor || "Anonymous"}</span>
+          ${igHtml}
+        </div>
+        <div class="modal-comment">${post.comment}</div>
+        <div class="modal-date">${formatDate(post.timestamp)}</div>
+      `;
+      document.getElementById("review-modal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+      document.getElementById("review-modal").classList.add("hidden");
+    }
+
+    function formatDate(ts) {
+      if (!ts) return "";
+      try {
+        return new Date(ts).toLocaleDateString("en-US", {
+          month: "short", day: "numeric", year: "numeric"
+        });
+      } catch (e) { return ""; }
+    }
+
+    function hideSheet() {
+      document.getElementById("bottom-sheet").classList.remove("open");
+      document.getElementById("map-overlay").classList.remove("visible");
+    }
+
+    // Swipe down to close
+    (function setupSwipe() {
+      let startY = 0;
+      const sheet = document.getElementById("bottom-sheet");
+      sheet.addEventListener("touchstart", e => { startY = e.touches[0].clientY; }, { passive: true });
+      sheet.addEventListener("touchend",   e => {
+        if (e.changedTouches[0].clientY - startY > 60) hideSheet();
+      }, { passive: true });
+    })();
+  
+// City search in map
+(function(){
+  var input = document.getElementById('city-search-input');
+  var box   = document.getElementById('city-search-dropdown');
+  if(!input || !box) return;
+
+  var LOCAL_CITIES = [
+    {name:'Phnom Penh', flag:'🇰🇭', lat:11.5600, lng:104.9180, live:true},
+    {name:'Siem Reap',  flag:'🇰🇭', lat:13.3671, lng:103.8448, live:false},
+    {name:'Bangkok',    flag:'🇹🇭', lat:13.7563, lng:100.5018, live:false}
+  ];
+
+  var debounce = null;
+
+  function flyTo(lat, lng, zoom) {
+    map.setCenter({lat: parseFloat(lat), lng: parseFloat(lng)});
+    map.setZoom(zoom || 13);
+    box.style.display = 'none';
+    input.value = '';
+  }
+
+  input.addEventListener('input', function(){
+    var v = input.value.trim();
+    box.innerHTML = '';
+    box.style.display = 'none';
+    if(!v) return;
+
+    var local = LOCAL_CITIES.filter(function(c){
+      return c.name.toLowerCase().indexOf(v.toLowerCase()) >= 0;
+    });
+
+    clearTimeout(debounce);
+    debounce = setTimeout(function(){
+      fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(v) + '&count=6&language=en&format=json')
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+          box.innerHTML = '';
+          var results = data.results || [];
+
+          local.forEach(function(c){
+            var d = document.createElement('div');
+            d.className = 'city-search-item';
+            d.innerHTML = c.flag + ' ' + c.name + (c.live ? '<span class="city-search-live">LIVE</span>' : '');
+            d.addEventListener('click', function(){ flyTo(c.lat, c.lng, 13); });
+            box.appendChild(d);
+          });
+
+          var localNames = local.map(function(c){ return c.name.toLowerCase(); });
+          results.forEach(function(r){
+            if(localNames.indexOf(r.name.toLowerCase()) >= 0) return;
+            var d = document.createElement('div');
+            d.className = 'city-search-item';
+            d.textContent = r.name + (r.admin1 ? ', ' + r.admin1 : '') + (r.country ? ', ' + r.country : '');
+            d.addEventListener('click', function(){ flyTo(r.latitude, r.longitude, 13); });
+            box.appendChild(d);
+          });
+
+          if(box.children.length > 0) box.style.display = 'block';
+        }).catch(function(){
+          if(local.length){
+            local.forEach(function(c){
+              var d = document.createElement('div');
+              d.className = 'city-search-item';
+              d.textContent = c.flag + ' ' + c.name;
+              d.addEventListener('click', function(){ flyTo(c.lat, c.lng, 13); });
+              box.appendChild(d);
+            });
+            box.style.display = 'block';
+          }
+        });
+    }, 300);
+  });
+
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      var first = box.querySelector('.city-search-item');
+      if(first) first.click();
+    }
+  });
+
+  document.addEventListener('click', function(e){
+    if(!document.getElementById('city-search-wrap').contains(e.target)){
+      box.style.display = 'none';
+    }
+  });
+})();
+
+
+// GPS / My Location
+(function(){
+  var btn = document.getElementById('gps-btn');
+  if(!btn) return;
+
+  var userMarker = null;
+  var watchId   = null;
+
+  function createUserMarker(lat, lng) {
+    if(userMarker) userMarker.setMap(null);
+
+    // 青い現在地マーカー
+    userMarker = new google.maps.Marker({
+      position: { lat: lat, lng: lng },
+      map: map,
+      title: 'You are here',
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 10,
+        fillColor: '#4A90E2',
+        fillOpacity: 1,
+        strokeColor: '#ffffff',
+        strokeWeight: 3,
+      },
+      zIndex: 9999
+    });
+  }
+
+  btn.addEventListener('click', function(){
+    if(!navigator.geolocation){
+      alert('GPS is not supported on this browser.');
+      return;
+    }
+
+    btn.classList.add('active');
+
+    navigator.geolocation.getCurrentPosition(
+      function(pos){
+        var lat = pos.coords.latitude;
+        var lng = pos.coords.longitude;
+        createUserMarker(lat, lng);
+        map.panTo({ lat: lat, lng: lng });
+        if(map.getZoom() < 13) map.setZoom(13);
+
+        // 位置が変わるたびに更新
+        if(watchId) navigator.geolocation.clearWatch(watchId);
+        watchId = navigator.geolocation.watchPosition(function(p){
+          createUserMarker(p.coords.latitude, p.coords.longitude);
+        });
+      },
+      function(err){
+        btn.classList.remove('active');
+        if(err.code === 1){
+          alert('Location access denied. Please allow location in your browser settings.');
+        } else {
+          alert('Could not get your location. Please try again.');
+        }
+      },
+      { enableHighAccuracy: false, timeout: 30000, maximumAge: 60000 }
+    );
+  });
+})();
+
+</script>
+
+  <script
+    async
+    defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5XRKHpjV-kiZALegNeLFYSdqixbFhnZI&callback=initMap&language=en"
+  ></script>
+
+</body>
+</html>

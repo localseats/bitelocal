@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard — Bitelocal</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:      #C8553D;
+      --primary-dark: #A03E2B;
+      --bg:           #FAFAF7;
+      --surface:      #FFFFFF;
+      --text:         #1C1C1E;
+      --text-sub:     #6E6E73;
+      --border:       #E5E5E0;
+      --gold:         #F5A623;
+      --silver:       #A0A0A8;
+      --bronze:       #C87040;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    html, body { min-height: 100%; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+    /* ── Header ──────────────────────────────────────────────────────────── */
+    .header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .back-btn {
+      display: flex; align-items: center; gap: 4px;
+      color: var(--primary); font-size: 14px; font-weight: 600;
+      padding: 8px; margin-left: -8px; border-radius: 8px;
+      text-decoration: none; transition: background .15s;
+    }
+    .back-btn:hover { background: rgba(200,85,61,.08); }
+    .back-arrow { font-size: 20px; line-height: 1; }
+    .header-title { font-size: 17px; font-weight: 900; letter-spacing: -.3px; color: var(--primary); }
+    .header-spacer { min-width: 64px; }
+
+    /* ── Main ────────────────────────────────────────────────────────────── */
+    main { padding-top: 56px; }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 36px 20px 80px; }
+
+    .page-hero { margin-bottom: 32px; }
+    .page-hero h1 {
+      font-size: clamp(24px, 5vw, 32px);
+      font-weight: 900; letter-spacing: -1px; line-height: 1.2; margin-bottom: 8px;
+    }
+    .page-hero p { font-size: 14px; color: var(--text-sub); }
+
+    /* ── Loading / empty ─────────────────────────────────────────────────── */
+    .state-msg {
+      text-align: center; padding: 60px 20px;
+      font-size: 14px; color: var(--text-sub);
+    }
+    .state-icon { font-size: 40px; display: block; margin-bottom: 12px; }
+
+    /* ── Leaderboard list ────────────────────────────────────────────────── */
+    .lb-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .lb-card {
+      display: flex; align-items: center; gap: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      transition: box-shadow .15s;
+    }
+    .lb-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.07); }
+
+    .lb-rank {
+      flex-shrink: 0;
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 900;
+      background: var(--bg);
+      color: var(--text-sub);
+    }
+    .lb-card:nth-child(1) .lb-rank { background: rgba(245,166,35,.15); color: var(--gold);   font-size: 20px; }
+    .lb-card:nth-child(2) .lb-rank { background: rgba(160,160,168,.15); color: var(--silver); font-size: 20px; }
+    .lb-card:nth-child(3) .lb-rank { background: rgba(200,112,64,.15);  color: var(--bronze); font-size: 20px; }
+
+    .lb-info { flex: 1; min-width: 0; }
+    .lb-name {
+      font-size: 15px; font-weight: 700; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: 3px;
+    }
+    .lb-ig {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 600;
+    }
+    .lb-ig:hover { text-decoration: underline; }
+    .lb-posts { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+
+    .lb-likes {
+      flex-shrink: 0; text-align: right;
+    }
+    .lb-likes-count {
+      font-size: 22px; font-weight: 900; letter-spacing: -.5px;
+      color: #E0507A; display: block;
+    }
+    .lb-likes-label { font-size: 11px; color: var(--text-sub); }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <a href="map.html" class="back-btn" id="back-btn">
+      <span class="back-arrow">‹</span>
+      <span>Map</span>
+    </a>
+    <span class="header-title">Bite<span style="color:var(--text)">local</span></span>
+    <div class="header-spacer"></div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <div class="page-hero">
+        <h1>🏆 Local Heroes</h1>
+        <p>Top contributors ranked by total likes received on their posts.</p>
+      </div>
+
+      <div id="lb-container">
+        <div class="state-msg">
+          <span class="state-icon">⏳</span>
+          Loading rankings…
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const GAS_URL    = "https://script.google.com/macros/s/AKfycbxOx6QRzdQ5Ewo-MRNMMoh_-wGCuLGGrTENG3skLKLFgERhUEJ4Y5EI0a5tmSrf3MzR_w/exec";
+    const cityFilter = new URLSearchParams(window.location.search).get("city") || "";
+
+    // Update page title and back link
+    (function () {
+      const p = new URLSearchParams(window.location.search);
+      const q = new URLSearchParams();
+      if (p.get("lat"))  q.set("lat",  p.get("lat"));
+      if (p.get("lng"))  q.set("lng",  p.get("lng"));
+      if (p.get("city")) q.set("city", p.get("city"));
+      const qs = q.toString();
+      document.getElementById("back-btn").href = "map.html" + (qs ? "?" + qs : "");
+
+      const h1 = document.querySelector(".page-hero h1");
+      const p2 = document.querySelector(".page-hero p");
+      if (cityFilter) {
+        h1.textContent = `🏆 Local Heroes — ${cityFilter}`;
+        p2.textContent = `Top contributors in ${cityFilter}, ranked by total likes.`;
+      }
+    })();
+
+    fetch(GAS_URL)
+      .then(res => res.json())
+      .then(rows => {
+        if (!Array.isArray(rows) || rows.length === 0) {
+          showEmpty();
+          return;
+        }
+
+        // Filter by city if param is present
+        const filtered = cityFilter
+          ? rows.filter(row =>
+              String(row.city || "").trim().toLowerCase() === cityFilter.toLowerCase()
+            )
+          : rows;
+
+        if (filtered.length === 0) { showEmpty(); return; }
+
+        // Aggregate likes by contributor
+        const contributors = {};
+        filtered.forEach(row => {
+          const name      = String(row.contributor || "Anonymous").trim() || "Anonymous";
+          const instagram = String(row.instagram   || "").trim();
+          const likes     = parseInt(row.likes)    || 0;
+          const key       = name;
+
+          if (!contributors[key]) {
+            contributors[key] = { name, instagram, likes: 0, posts: 0 };
+          }
+          contributors[key].likes += likes;
+          contributors[key].posts += 1;
+          if (!contributors[key].instagram && instagram)
+            contributors[key].instagram = instagram;
+        });
+
+        const ranked = Object.values(contributors)
+          .sort((a, b) => b.likes - a.likes)
+          .slice(0, 50);
+
+        if (ranked.length === 0) { showEmpty(); return; }
+
+        const medals = ["🥇", "🥈", "🥉"];
+        const container = document.getElementById("lb-container");
+        const list = document.createElement("div");
+        list.className = "lb-list";
+
+        ranked.forEach((c, i) => {
+          const igHandle = c.instagram.replace(/^@/, "");
+          const igHtml   = igHandle
+            ? `<a href="https://instagram.com/${igHandle}" target="_blank" rel="noopener" class="lb-ig">📷 @${igHandle}</a>`
+            : "";
+          const rank     = i < 3 ? medals[i] : `${i + 1}`;
+
+          const card = document.createElement("div");
+          card.className = "lb-card";
+          card.innerHTML = `
+            <div class="lb-rank">${rank}</div>
+            <div class="lb-info">
+              <div class="lb-name">${c.name}</div>
+              ${igHtml}
+              <div class="lb-posts">${c.posts} post${c.posts !== 1 ? "s" : ""}</div>
+            </div>
+            <div class="lb-likes">
+              <span class="lb-likes-count">❤️ ${c.likes}</span>
+              <span class="lb-likes-label">likes</span>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+
+        container.innerHTML = "";
+        container.appendChild(list);
+      })
+      .catch(() => {
+        document.getElementById("lb-container").innerHTML = `
+          <div class="state-msg">
+            <span class="state-icon">⚠️</span>
+            Could not load rankings. Please try again later.
+          </div>`;
+      });
+
+    function showEmpty() {
+      document.getElementById("lb-container").innerHTML = `
+        <div class="state-msg">
+          <span class="state-icon">📭</span>
+          No posts yet. Be the first to add a spot!
+        </div>`;
+    }
+  </script>
+
+</body>
+</html>
