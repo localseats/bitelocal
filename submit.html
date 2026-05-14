@@ -404,19 +404,18 @@
 
         <!-- ── Photos ───────────────────────────────────────────────────────── -->
         <div class="form-section">
-          <div class="section-label">Photos <span class="label-hint">Optional</span></div>
-          <input type="hidden" id="photo-url" value="" />
-          <div style="margin-top:8px;">
-            <input type="file" id="photo-file-input" accept="image/*"
-              style="width:100%;padding:12px;border:1.5px dashed #E2DED8;border-radius:10px;background:#fff;font-size:14px;color:#6B6560;cursor:pointer;" />
-            <div id="photo-preview" style="margin-top:8px;display:none;">
-              <img id="photo-preview-img" src="" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;" />
-              <p id="photo-status" style="font-size:12px;color:#22A06B;margin-top:4px;"></p>
-            </div>
-          </div>
+          <div class="section-label">Photo URL <span class="label-hint">Optional</span></div>
+          <input type="url" id="photo-url" name="photo-url"
+            placeholder="Paste image URL (e.g. from Google Photos, Imgur)"
+            style="width:100%;padding:13px 16px;border:1.5px solid #E2DED8;border-radius:10px;font-size:15px;font-family:inherit;margin-top:8px;outline:none;box-sizing:border-box;"
+            onfocus="this.style.borderColor='#BF2010'"
+            onblur="this.style.borderColor='#E2DED8'" />
+          <p style="font-size:12px;color:#A8A39D;margin-top:6px;">
+            Upload to <a href="https://imgbb.com" target="_blank" style="color:#BF2010;">imgbb.com</a> → copy direct link → paste here
+          </p>
         </div>
 
-        <!-- ── Comment ──────────────────────────────────────────────────────── -->
+        <!-- ── Comment        <!-- ── Comment ──────────────────────────────────────────────────────── -->
         <div class="form-section">
           <div class="section-label">Your Note</div>
 
@@ -643,72 +642,7 @@
       return groups.join(", ");
     }
 
-    // ── Photo upload (imgbb) ──────────────────────────────────────────────────
-    let uploadedPhotoUrl = "";
-
-    document.getElementById("photo-file-input").addEventListener("change", async function() {
-      const file = this.files[0];
-      if (!file) return;
-
-      document.getElementById("photo-status").textContent = "Uploading...";
-      document.getElementById("photo-preview").style.display = "block";
-      document.getElementById("photo-preview-img").src = URL.createObjectURL(file);
-
-      const reader = new FileReader();
-      reader.onload = async function() {
-        const form = new FormData();
-        form.append("image", reader.result.split(",")[1]);
-        form.append("key", "84ed403c7cd3480fc4d6753c2426e2ff");
-        try {
-          const res = await fetch("https://api.imgbb.com/1/upload", {method:"POST", body:form});
-          const json = await res.json();
-          if (json.success) {
-            uploadedPhotoUrl = json.data.url;
-            document.getElementById("photo-url").value = uploadedPhotoUrl;
-            document.getElementById("photo-status").textContent = "✓ Photo uploaded";
-          } else {
-            document.getElementById("photo-status").textContent = "Upload failed";
-          }
-        } catch(err) {
-          document.getElementById("photo-status").textContent = "Error: " + err.message;
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-    }
-
-
-
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload  = () => resolve(reader.result.split(",")[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    document.getElementById("photo-file-input").addEventListener("change", async function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const grid = document.getElementById("photo-grid");
-      grid.innerHTML = "<div style='padding:16px;text-align:center;font-size:13px;color:#6B6560;'>Uploading…</div>";
-
-      const reader = new FileReader();
-      reader.onload = async function() {
-        const base64 = reader.result.split(",")[1];
-        const form = new FormData();
-        form.append("image", base64);
-        form.append("key", "84ed403c7cd3480fc4d6753c2426e2ff");
-
-        try {
-          const res = await fetch("https://api.imgbb.com/1/upload", { method: "POST", body: form });
-          const data = await res.json();
-          if (data && data.success) {
-            uploadedPhotoUrl = data.data.url;
-            document.getElementById("photo-url").value = uploadedPhotoUrl;
-            renderPhotoGrid();
+    // photo URL is entered directly by user
           } else {
             alert("Upload failed. Please try again.");
             renderPhotoGrid();
@@ -793,7 +727,7 @@
         comment:       comment.value.trim(),
         contributor:   document.getElementById("contributor").value.trim(),
         instagram:     document.getElementById("instagram").value.trim(),
-        photos:        document.getElementById("photo-url").value || "",
+        photos:        document.getElementById("photo-url").value.trim(),
         city:          urlCity,
       };
 
