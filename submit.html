@@ -688,37 +688,7 @@
         statusEl.style.color = "#BF2010";
       }
     }
-          const json = await res.json();
-          if (json.success) {
-            document.getElementById("photo-url").value = json.data.url;
-            document.getElementById("photo-status").textContent = "✓ Photo uploaded";
-            document.getElementById("photo-status").style.color = "#22A06B";
-            document.getElementById("photo-btn-text").textContent = "Change photo";
-          } else {
-            document.getElementById("photo-status").textContent = "Upload failed. Try again.";
-            document.getElementById("photo-status").style.color = "#BF2010";
-            document.getElementById("photo-btn-text").textContent = "Choose a photo";
-          }
-        } catch(err) {
-          document.getElementById("photo-status").textContent = "Error: " + err.message;
-          document.getElementById("photo-status").style.color = "#BF2010";
-          document.getElementById("photo-btn-text").textContent = "Choose a photo";
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-          } else {
-            alert("Upload failed. Please try again.");
-            renderPhotoGrid();
-          }
-        } catch(err) {
-          alert("Upload error: " + err.message);
-          renderPhotoGrid();
-        }
-      };
-      reader.readAsDataURL(file);
-      e.target.value = "";
-    });
+
 
     renderPhotoGrid();
 
