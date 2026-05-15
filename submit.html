@@ -6,308 +6,134 @@
   <title>Add a Spot — Bitelocal</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --primary:      #BF2010;
-      --primary-dark: #991A0D;
-      --accent:       #2D6A4F;
-      --bg:           #FAFAF7;
-      --surface:      #FFFFFF;
-      --text:         #1C1C1E;
-      --text-sub:     #6E6E73;
-      --border:       #E5E5E0;
-      --radius-sm:    8px;
-      --radius-md:    12px;
-      --radius-lg:    16px;
-      --radius-full:  999px;
+      --primary: #BF2010; --primary-dark: #991A0D; --bg: #FAFAF7; --surface: #FFFFFF;
+      --text: #1C1C1E; --text-sub: #6E6E73; --border: #E5E5E0;
+      --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-full: 999px;
       font-family: 'DM Sans', -apple-system, sans-serif;
     }
-
     html, body { min-height: 100%; background: var(--bg); color: var(--text); line-height: 1.6; }
     a { text-decoration: none; color: inherit; }
-
-    /* ── Header ──────────────────────────────────────────────────────────── */
     .header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      height: 56px;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 56px;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 16px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
+      padding: 0 16px; background: var(--surface); border-bottom: 1px solid var(--border);
     }
-
     .back-btn {
-      display: flex; align-items: center; gap: 4px;
-      color: var(--primary); font-size: 14px; font-weight: 600;
-      padding: 8px; margin-left: -8px; border-radius: var(--radius-sm);
-      text-decoration: none; transition: background .15s;
-      min-width: 64px;
+      display: flex; align-items: center; gap: 4px; color: var(--primary);
+      font-size: 14px; font-weight: 600; padding: 8px; margin-left: -8px;
+      border-radius: var(--radius-sm); text-decoration: none; transition: background .15s; min-width: 64px;
     }
     .back-btn:hover { background: rgba(200,85,61,.08); }
     .back-arrow { font-size: 20px; line-height: 1; }
-
-    .header-title { font-size: 20px; font-weight: 700; letter-spacing: 0; color: #1A1714; font-family: 'Playfair Display', Georgia, serif; }
+    .header-title { font-size: 20px; font-weight: 700; color: #1A1714; font-family: 'Playfair Display', Georgia, serif; }
     .header-title span { color: var(--text); }
     .header-spacer { min-width: 64px; }
-
-    /* ── Main ────────────────────────────────────────────────────────────── */
     main { padding-top: 56px; min-height: 100vh; }
-
-    .form-wrap {
-      max-width: 560px; margin: 0 auto; padding: 36px 20px 80px;
-    }
-
-    /* ── Form hero ───────────────────────────────────────────────────────── */
+    .form-wrap { max-width: 560px; margin: 0 auto; padding: 36px 20px 80px; }
     .form-hero { margin-bottom: 36px; }
-    .form-hero h1 {
-      font-size: clamp(24px, 5vw, 32px);
-      font-weight: 900; letter-spacing: -1px; line-height: 1.2;
-      margin-bottom: 8px;
-    }
+    .form-hero h1 { font-size: clamp(24px,5vw,32px); font-weight: 900; letter-spacing: -1px; line-height: 1.2; margin-bottom: 8px; }
     .form-hero p { font-size: 14px; color: var(--text-sub); line-height: 1.7; }
-
-    /* ── Section dividers ────────────────────────────────────────────────── */
-    .form-section {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      margin-bottom: 16px;
-    }
-
-    .section-label {
-      font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-      color: var(--primary); margin-bottom: 16px;
-    }
-
-    /* ── Form groups ─────────────────────────────────────────────────────── */
+    .form-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); margin-bottom: 16px; }
     .form-group { margin-bottom: 18px; }
     .form-group:last-child { margin-bottom: 0; }
-
-    .form-group label {
-      display: flex; align-items: baseline; gap: 6px;
-      font-size: 13px; font-weight: 700; color: var(--text);
-      margin-bottom: 7px;
-    }
+    .form-group label { display: flex; align-items: baseline; gap: 6px; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 7px; }
     .required-star { color: var(--primary); }
     .label-hint { font-size: 12px; font-weight: 400; color: var(--text-sub); }
-
-    .form-group input[type="text"],
-    .form-group textarea {
-      width: 100%;
-      padding: 11px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-md);
-      font-size: 15px; font-family: inherit;
-      color: var(--text); background: var(--bg);
-      transition: border-color .15s, box-shadow .15s;
-      -webkit-appearance: none;
+    .form-group input[type="text"], .form-group textarea {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-md);
+      font-size: 15px; font-family: inherit; color: var(--text); background: var(--bg);
+      transition: border-color .15s, box-shadow .15s; -webkit-appearance: none;
     }
-    .form-group input[type="text"]::placeholder,
-    .form-group textarea::placeholder { color: #B0B0B8; }
-
-    .form-group input[type="text"]:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(200,85,61,.1);
-      background: var(--surface);
+    .form-group input[type="text"]::placeholder, .form-group textarea::placeholder { color: #B0B0B8; }
+    .form-group input[type="text"]:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(200,85,61,.1); background: var(--surface);
     }
-
-    .form-group input.error,
-    .form-group textarea.error {
-      border-color: #E03030;
-      box-shadow: 0 0 0 3px rgba(224,48,48,.08);
-    }
-
+    .form-group input.error, .form-group textarea.error { border-color: #E03030; box-shadow: 0 0 0 3px rgba(224,48,48,.08); }
     .form-group textarea { resize: vertical; min-height: 96px; line-height: 1.65; }
-
     .char-count { text-align: right; font-size: 11px; color: var(--text-sub); margin-top: 4px; }
     .char-count.near-limit { color: #E8903A; }
-    .char-count.at-limit    { color: #C8553D; }
-
+    .char-count.at-limit { color: #C8553D; }
     .field-error { font-size: 12px; color: #E03030; margin-top: 4px; display: none; }
     .field-error.visible { display: block; }
-
-    /* ── Category pills ──────────────────────────────────────────────────── */
     .category-pills { display: flex; flex-wrap: wrap; gap: 8px; }
     .category-pills input[type="radio"] { display: none; }
-
     .pill {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 8px 16px; border-radius: var(--radius-full);
-      border: 1.5px solid var(--border);
-      background: var(--bg); color: var(--text-sub);
-      font-size: 14px; font-weight: 600;
-      cursor: pointer; white-space: nowrap;
-      transition: all .15s;
-      user-select: none;
+      display: inline-flex; align-items: center; gap: 5px; padding: 8px 16px; border-radius: var(--radius-full);
+      border: 1.5px solid var(--border); background: var(--bg); color: var(--text-sub);
+      font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all .15s; user-select: none;
     }
     .pill:hover { border-color: var(--primary); color: var(--primary); background: rgba(200,85,61,.04); }
-    .category-pills input[type="radio"]:checked + .pill {
-      background: var(--primary); border-color: var(--primary); color: #fff;
-    }
-
-    /* ── Pin map ─────────────────────────────────────────────────────────── */
+    .category-pills input[type="radio"]:checked + .pill { background: var(--primary); border-color: var(--primary); color: #fff; }
     .map-instruction {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 13px; color: var(--text-sub);
-      padding: 9px 12px; margin-bottom: 10px;
-      background: rgba(200,85,61,.06);
-      border: 1px solid rgba(200,85,61,.15);
-      border-radius: var(--radius-sm);
+      display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-sub);
+      padding: 9px 12px; margin-bottom: 10px; background: rgba(200,85,61,.06);
+      border: 1px solid rgba(200,85,61,.15); border-radius: var(--radius-sm);
     }
     .map-instruction-icon { font-size: 15px; }
-
-    #pin-map {
-      width: 100%; height: 280px;
-      border-radius: var(--radius-md);
-      border: 1.5px solid var(--border);
-      overflow: hidden;
-      cursor: crosshair;
-      margin-bottom: 10px;
-    }
+    #pin-map { width: 100%; height: 280px; border-radius: var(--radius-md); border: 1.5px solid var(--border); overflow: hidden; cursor: crosshair; margin-bottom: 10px; }
     #pin-map.has-pin { border-color: rgba(200,85,61,.4); }
-
-    .location-status {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; border-radius: var(--radius-sm);
-      background: var(--bg); border: 1px solid var(--border);
-      font-size: 13px; color: var(--text-sub);
-      transition: all .2s;
-    }
-    .location-status.pinned {
-      background: rgba(200,85,61,.06);
-      border-color: rgba(200,85,61,.2);
-    }
+    .location-status { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm); background: var(--bg); border: 1px solid var(--border); font-size: 13px; color: var(--text-sub); transition: all .2s; }
+    .location-status.pinned { background: rgba(200,85,61,.06); border-color: rgba(200,85,61,.2); }
     .location-status-icon { font-size: 16px; flex-shrink: 0; }
     .location-status-text strong { display: block; font-size: 13px; font-weight: 600; color: var(--text); }
-    .location-status-text span  { font-size: 11px; color: var(--text-sub); font-variant-numeric: tabular-nums; }
-
-    /* ── Google Places Autocomplete dropdown ────────────────────────────── */
-    .pac-container {
-      z-index: 9999 !important;
-      border-radius: var(--radius-md) !important;
-      border: 1px solid var(--border) !important;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.10) !important;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-      margin-top: 4px;
-    }
+    .location-status-text span { font-size: 11px; color: var(--text-sub); }
+    .pac-container { z-index: 9999 !important; border-radius: var(--radius-md) !important; border: 1px solid var(--border) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.10) !important; margin-top: 4px; }
     .pac-item { padding: 8px 14px; font-size: 14px; cursor: pointer; }
     .pac-item:hover { background: var(--bg); }
-    .pac-item-query { font-size: 14px; color: var(--text); }
-
-    /* ── Photo upload ────────────────────────────────────────────────────── */
-    .photo-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      align-items: start;
+    /* Photo drop zone */
+    .photo-drop-zone {
+      width: 100%; min-height: 160px; border: 2px dashed var(--border); border-radius: var(--radius-lg);
+      cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 28px 20px; transition: border-color .2s, background .2s; background: var(--bg);
+      position: relative; overflow: hidden;
     }
-
-    .photo-card { display: flex; flex-direction: column; gap: 6px; }
-
-    .photo-preview-wrap {
-      position: relative; aspect-ratio: 1;
-      border-radius: var(--radius-md); overflow: hidden;
-      background: var(--bg); border: 1px solid var(--border);
-    }
-    .photo-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-    .photo-remove-btn {
-      position: absolute; top: 5px; right: 5px;
-      width: 22px; height: 22px; border-radius: 50%;
-      background: rgba(0,0,0,.55); border: none;
-      color: #fff; font-size: 13px; line-height: 1;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-    }
-
-    .photo-caption-input {
-      width: 100%; padding: 5px 8px;
-      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-      font-size: 12px; font-family: inherit; color: var(--text); background: var(--bg);
-    }
-    .photo-caption-input:focus { outline: none; border-color: var(--primary); }
-
-    .photo-add-btn {
-      aspect-ratio: 1;
-      border: 2px dashed var(--border); border-radius: var(--radius-md);
-      background: none; cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 5px; color: var(--text-sub); font-size: 12px; font-family: inherit;
-      transition: border-color .15s, color .15s, background .15s;
-    }
-    .photo-add-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(200,85,61,.04); }
-    .photo-add-icon { font-size: 22px; }
-
-    /* ── Submit button ───────────────────────────────────────────────────── */
+    .photo-drop-zone:hover { border-color: var(--primary); background: rgba(200,85,61,.03); }
+    .photo-drop-zone.dragover { border-color: var(--primary); background: rgba(200,85,61,.06); border-style: solid; }
+    .photo-drop-zone.uploading { border-color: #E8903A; border-style: solid; }
+    .photo-drop-zone.done { border-color: #22A06B; border-style: solid; }
+    .photo-drop-zone.error { border-color: var(--primary); border-style: solid; }
+    .photo-drop-content { text-align: center; pointer-events: none; }
+    .photo-drop-icon { font-size: 36px; margin-bottom: 10px; }
+    .photo-drop-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .photo-drop-sub { font-size: 12px; color: var(--text-sub); }
+    #photo-preview-img { display: none; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #F5F3F0; }
+    .photo-change-hint { display: none; position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,.55); color: #fff; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
     .about-row { display: flex; gap: 12px; }
     @media (max-width: 400px) { .about-row { flex-direction: column; } }
-
     .submit-group { margin-top: 24px; }
-
     .btn-submit {
-      width: 100%; padding: 15px;
-      background: var(--primary); color: #fff;
-      border: none; border-radius: var(--radius-md);
-      font-size: 16px; font-weight: 700; font-family: inherit;
-      cursor: pointer; letter-spacing: -.2px;
-      box-shadow: 0 4px 14px rgba(200,85,61,.35);
-      transition: background .2s, transform .15s, box-shadow .2s;
+      width: 100%; padding: 15px; background: var(--primary); color: #fff; border: none;
+      border-radius: var(--radius-md); font-size: 16px; font-weight: 700; font-family: inherit;
+      cursor: pointer; box-shadow: 0 4px 14px rgba(200,85,61,.35); transition: background .2s, transform .15s, box-shadow .2s;
     }
-    .btn-submit:hover {
-      background: var(--primary-dark);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(200,85,61,.45);
-    }
+    .btn-submit:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(200,85,61,.45); }
     .btn-submit:active { transform: none; }
     .btn-submit:disabled { background: #C8A09A; box-shadow: none; cursor: not-allowed; transform: none; }
-
-    .submit-note {
-      text-align: center; font-size: 12px; color: var(--text-sub); margin-top: 12px; line-height: 1.6;
-    }
-
-    /* ── Success screen ──────────────────────────────────────────────────── */
-    .success-screen {
-      display: none;
-      max-width: 400px; margin: 0 auto;
-      padding: 60px 20px 80px; text-align: center;
-    }
+    .submit-note { text-align: center; font-size: 12px; color: var(--text-sub); margin-top: 12px; line-height: 1.6; }
+    .success-screen { display: none; max-width: 400px; margin: 0 auto; padding: 60px 20px 80px; text-align: center; }
     .success-screen.visible { display: block; }
     .form-wrap.submitted { display: none; }
-
     .success-icon { font-size: 64px; margin-bottom: 24px; display: block; }
-    .success-screen h2 {
-      font-size: 26px; font-weight: 900; letter-spacing: -.5px; margin-bottom: 10px;
-    }
+    .success-screen h2 { font-size: 26px; font-weight: 900; letter-spacing: -.5px; margin-bottom: 10px; }
     .success-screen p { font-size: 14px; color: var(--text-sub); line-height: 1.75; margin-bottom: 32px; }
-
-    .btn-back {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--primary); color: #fff;
-      font-size: 15px; font-weight: 700;
-      padding: 13px 28px; border-radius: var(--radius-full);
-      box-shadow: 0 4px 14px rgba(200,85,61,.35);
-      transition: background .2s, transform .15s;
-    }
+    .btn-back { display: inline-flex; align-items: center; gap: 8px; background: var(--primary); color: #fff; font-size: 15px; font-weight: 700; padding: 13px 28px; border-radius: var(--radius-full); box-shadow: 0 4px 14px rgba(200,85,61,.35); transition: background .2s, transform .15s; }
     .btn-back:hover { background: var(--primary-dark); transform: translateY(-1px); }
   </style>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 </head>
 <body>
 
-  <!-- ── Header ──────────────────────────────────────────────────────────────── -->
   <header class="header">
     <a id="back-btn" href="map.html" class="back-btn">
-      <span class="back-arrow">‹</span>
-      <span>Back</span>
+      <span class="back-arrow">‹</span><span>Back</span>
     </a>
     <span class="header-title">Bite<span>local</span></span>
     <div class="header-spacer"></div>
   </header>
 
-  <!-- ── Success screen ──────────────────────────────────────────────────────── -->
   <main>
     <div class="success-screen" id="success-screen">
       <span class="success-icon">🎉</span>
@@ -316,7 +142,6 @@
       <a id="back-to-map-btn" href="map.html" class="btn-back">← Back to the Map</a>
     </div>
 
-    <!-- ── Form ──────────────────────────────────────────────────────────────── -->
     <div class="form-wrap" id="form-wrap">
       <div class="form-hero">
         <h1>Add a Local Spot</h1>
@@ -325,31 +150,24 @@
 
       <form id="submit-form" novalidate>
 
-        <!-- ── Basic info ───────────────────────────────────────────────────── -->
         <div class="form-section">
           <div class="section-label">Basic Info</div>
-
           <div class="form-group">
             <label for="name">Place Name <span class="required-star">*</span></label>
             <input type="text" id="name" name="name" placeholder="e.g. Dollar Noodles" maxlength="80" autocomplete="off">
             <div class="field-error" id="name-error">Please enter the place name.</div>
           </div>
-
           <div class="form-group">
             <label>Category <span class="required-star">*</span></label>
             <div class="category-pills">
               <input type="radio" name="category" id="cat-restaurant" value="restaurant">
               <label class="pill" for="cat-restaurant">🍜 Restaurant</label>
-
               <input type="radio" name="category" id="cat-cafe" value="cafe">
               <label class="pill" for="cat-cafe">☕ Cafe</label>
-
               <input type="radio" name="category" id="cat-bar" value="bar">
               <label class="pill" for="cat-bar">🍺 Bar</label>
-
               <input type="radio" name="category" id="cat-halal" value="halal">
               <label class="pill" for="cat-halal">🌙 Halal</label>
-
               <input type="radio" name="category" id="cat-vegetarian" value="vegetarian">
               <label class="pill" for="cat-vegetarian">🥗 Vegetarian</label>
             </div>
@@ -357,17 +175,13 @@
           </div>
         </div>
 
-        <!-- ── Location ─────────────────────────────────────────────────────── -->
         <div class="form-section">
           <div class="section-label">Location</div>
-
           <div class="map-instruction">
             <span class="map-instruction-icon">👆</span>
             Tap anywhere on the map to drop a pin at the exact location.
           </div>
-
           <div id="pin-map"></div>
-
           <div class="location-status" id="location-status">
             <span class="location-status-icon">📍</span>
             <div class="location-status-text">
@@ -376,86 +190,72 @@
             </div>
           </div>
           <div class="field-error" id="location-error">Please drop a pin on the map.</div>
-
           <input type="hidden" id="lat" name="lat">
           <input type="hidden" id="lng" name="lng">
-
-          <div class="form-group" style="margin-top:16px; margin-bottom:0;">
-            <label for="address">Address <span class="label-hint">Optional — fill in if you know it</span></label>
+          <div class="form-group" style="margin-top:16px;margin-bottom:0;">
+            <label for="address">Address <span class="label-hint">Optional</span></label>
             <input type="text" id="address" name="address" placeholder="e.g. Street 278, BKK1, Phnom Penh">
           </div>
         </div>
 
-        <!-- ── Details ──────────────────────────────────────────────────────── -->
         <div class="form-section">
           <div class="section-label">Details</div>
-
           <div class="form-group">
             <label for="hours">Opening Hours <span class="label-hint">Optional</span></label>
             <input type="text" id="hours" name="hours" placeholder="e.g. 07:00 – 15:00, closed Sunday">
             <input type="hidden" id="hours-hidden">
           </div>
-
           <div class="form-group">
             <label for="price">Price Range <span class="label-hint">Optional</span></label>
             <input type="text" id="price" name="price" placeholder="e.g. From $1 (noodle bowl)">
           </div>
         </div>
 
-        <!-- ── Photos ───────────────────────────────────────────────────────── -->
         <div class="form-section">
           <div class="section-label">Photo <span class="label-hint">Optional</span></div>
           <input type="hidden" id="photo-url" value="" />
-          <div style="margin-top:8px;">
-            <input type="file" accept="image/*" id="photo-file-input"
-              onchange="uploadPhoto(this)"
-              style="width:100%;padding:12px;border:1.5px dashed #E2DED8;border-radius:10px;background:#fff;font-size:14px;color:#6B6560;" />
-            <p id="photo-status" style="font-size:13px;margin-top:8px;min-height:20px;"></p>
-            <img id="photo-preview-img" src="" style="display:none;width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-top:8px;" />
+          <input type="file" accept="image/*" id="photo-file-input" style="display:none;" />
+          <div class="photo-drop-zone" id="photo-drop-zone">
+            <div class="photo-drop-content" id="photo-drop-content">
+              <div class="photo-drop-icon">📷</div>
+              <div class="photo-drop-title">Add a photo</div>
+              <div class="photo-drop-sub">Tap to choose · or drag &amp; drop</div>
+            </div>
+            <img id="photo-preview-img" alt="preview" />
+            <span class="photo-change-hint" id="photo-change-hint">Tap to change</span>
           </div>
+          <p id="photo-status" style="font-size:13px;margin-top:8px;min-height:20px;text-align:center;color:var(--text-sub);"></p>
         </div>
 
-        <!-- ── Comment        <!-- ── Comment        <!-- ── Comment        <!-- ── Comment ──────────────────────────────────────────────────────── -->
         <div class="form-section">
           <div class="section-label">Your Note</div>
-
           <div class="form-group">
-            <label for="comment">
-              What makes this place special?
-              <span class="required-star">*</span>
-            </label>
-            <textarea
-              id="comment" name="comment"
-              placeholder="e.g. No sign out front — look for the blue door at the end of the alley. Order the iced coffee with condensed milk."
-              maxlength="300"
-            ></textarea>
+            <label for="comment">What makes this place special? <span class="required-star">*</span></label>
+            <textarea id="comment" name="comment"
+              placeholder="e.g. No sign out front — look for the blue door. Order the iced coffee with condensed milk."
+              maxlength="300"></textarea>
             <div class="char-count" id="char-count">0 / 300</div>
             <div class="field-error" id="comment-error">Please add a comment about this place.</div>
           </div>
-
         </div>
 
-        <!-- ── About You ────────────────────────────────────────────────────── -->
         <div class="form-section">
-          <div class="section-label">About You <span class="label-hint">Optional</span></div>
+          <div class="section-label">About You <span class="label-hint">Optional — saved automatically for next time</span></div>
           <div class="about-row">
-            <div class="form-group" style="flex:1; margin-bottom:0;">
+            <div class="form-group" style="flex:1;margin-bottom:0;">
               <label for="contributor">Your Name</label>
               <input type="text" id="contributor" name="contributor" placeholder="e.g. Sarah" maxlength="40" autocomplete="off">
             </div>
-            <div class="form-group" style="flex:1; margin-bottom:0;">
+            <div class="form-group" style="flex:1;margin-bottom:0;">
               <label for="instagram">Instagram</label>
               <input type="text" id="instagram" name="instagram" placeholder="@username" maxlength="40" autocomplete="off">
             </div>
           </div>
         </div>
 
-        <!-- ── Submit ────────────────────────────────────────────────────────── -->
         <div class="submit-group">
           <button type="submit" class="btn-submit" id="submit-btn">Submit Spot →</button>
-          <p class="submit-note">
-            Submissions are reviewed before appearing on the map.
-          </p>
+          <p class="submit-note">Submissions are reviewed before appearing on the map.</p>
         </div>
 
       </form>
@@ -463,25 +263,31 @@
   </main>
 
   <script>
-    const GAS_URL  = "https://script.google.com/macros/s/AKfycbwPUlcnKlSiFa9HobyqXBriJqLFOt-5L71ybHksAoUGhemy33fVR8A4F6iqKzlLkoD2TQ/exec";
-    const urlCity  = new URLSearchParams(window.location.search).get("city") || "Phnom Penh";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwPUlcnKlSiFa9HobyqXBriJqLFOt-5L71ybHksAoUGhemy33fVR8A4F6iqKzlLkoD2TQ/exec";
+    const urlCity = new URLSearchParams(window.location.search).get("city") || "Phnom Penh";
 
-    // Preserve city params on back navigation
-    (function () {
+    (function() {
       const p = new URLSearchParams(window.location.search);
       const q = new URLSearchParams();
       if (p.get("lat"))  q.set("lat",  p.get("lat"));
       if (p.get("lng"))  q.set("lng",  p.get("lng"));
       if (p.get("city")) q.set("city", p.get("city"));
       const qs = q.toString();
-      const mapHref = "map.html" + (qs ? "?" + qs : "");
-      document.getElementById("back-btn").href        = mapHref;
-      document.getElementById("back-to-map-btn").href = mapHref;
+      const href = "map.html" + (qs ? "?" + qs : "");
+      document.getElementById("back-btn").href        = href;
+      document.getElementById("back-to-map-btn").href = href;
     })();
 
-    // ── Pin map ────────────────────────────────────────────────────────────────
-    let pinMarker = null;
-    let pinMap    = null;
+    // Restore saved name + instagram
+    (function() {
+      const n = localStorage.getItem("bitelocal_myname");
+      const g = localStorage.getItem("bitelocal_myinstagram");
+      if (n) document.getElementById("contributor").value = n;
+      if (g) document.getElementById("instagram").value   = g;
+    })();
+
+    // Pin map
+    let pinMarker = null, pinMap = null;
 
     function initMap() {
       const params  = new URLSearchParams(window.location.search);
@@ -489,176 +295,110 @@
       const cityLng = parseFloat(params.get("lng")) || 104.9180;
 
       pinMap = new google.maps.Map(document.getElementById("pin-map"), {
-        center: { lat: cityLat, lng: cityLng },
-        zoom: 14,
-        disableDefaultUI: true,
-        zoomControl: true,
+        center: { lat: cityLat, lng: cityLng }, zoom: 14,
+        disableDefaultUI: true, zoomControl: true,
         zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_CENTER },
         styles: [
-          { featureType: "poi",           elementType: "labels",   stylers: [{ visibility: "off" }] },
-          { featureType: "transit",                                 stylers: [{ visibility: "simplified" }] },
-          { featureType: "water",                                   stylers: [{ color: "#B8D4E2" }] },
-          { featureType: "landscape",                               stylers: [{ color: "#F2EFE9" }] },
-          { featureType: "road",          elementType: "geometry", stylers: [{ color: "#FFFFFF" }] },
-          { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#F5F1EB" }] },
+          { featureType:"poi", elementType:"labels", stylers:[{visibility:"off"}] },
+          { featureType:"water", stylers:[{color:"#B8D4E2"}] },
+          { featureType:"landscape", stylers:[{color:"#F2EFE9"}] },
+          { featureType:"road", elementType:"geometry", stylers:[{color:"#FFFFFF"}] },
+          { featureType:"road.arterial", elementType:"geometry", stylers:[{color:"#F5F1EB"}] },
         ],
       });
+      pinMap.addListener("click", e => placePin(e.latLng));
 
-      pinMap.addListener("click", (e) => placePin(e.latLng));
-
-      // ── Places Autocomplete ───────────────────────────────────────────────
-      const nameInput = document.getElementById("name");
-
-      const delta      = 0.15; // ~15 km radius
+      const nameInput  = document.getElementById("name");
+      const delta      = 0.15;
       const cityBounds = new google.maps.LatLngBounds(
         new google.maps.LatLng(cityLat - delta, cityLng - delta),
         new google.maps.LatLng(cityLat + delta, cityLng + delta)
       );
-
-      const autocomplete = new google.maps.places.Autocomplete(
-        nameInput,
-        {
-          bounds:       cityBounds,
-          strictBounds: false,
-          fields:       ["name", "geometry", "formatted_address", "opening_hours", "place_id"],
-        }
-      );
-
-      autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        if (!place.geometry || !place.geometry.location) return;
-
+      const ac = new google.maps.places.Autocomplete(nameInput, {
+        bounds: cityBounds, strictBounds: false,
+        fields: ["name","geometry","formatted_address","opening_hours","place_id"],
+      });
+      ac.addListener("place_changed", () => {
+        const place = ac.getPlace();
+        if (!place.geometry?.location) return;
         document.getElementById("name").value = place.name;
-
-        const addressEl = document.getElementById("address");
-        if (!addressEl.value && place.formatted_address) {
-          addressEl.value = place.formatted_address;
-        }
-
+        const addr = document.getElementById("address");
+        if (!addr.value && place.formatted_address) addr.value = place.formatted_address;
         placePin(place.geometry.location);
         pinMap.setCenter(place.geometry.location);
         pinMap.setZoom(17);
-
         clearError(document.getElementById("name"));
         hideError("name-error");
-
-        // Use getDetails() to reliably fetch opening_hours
         if (place.place_id) {
-          const svc = new google.maps.places.PlacesService(pinMap);
-          svc.getDetails(
+          new google.maps.places.PlacesService(pinMap).getDetails(
             { placeId: place.place_id, fields: ["opening_hours"] },
-            (details, status) => {
-              if (
-                status === google.maps.places.PlacesServiceStatus.OK &&
-                details.opening_hours &&
-                details.opening_hours.weekday_text
-              ) {
-                const formatted = formatOpeningHours(details.opening_hours.weekday_text);
-                document.getElementById("hours").value        = formatted;
-                document.getElementById("hours-hidden").value = formatted;
+            (d, s) => {
+              if (s === google.maps.places.PlacesServiceStatus.OK && d.opening_hours?.weekday_text) {
+                const f = formatOpeningHours(d.opening_hours.weekday_text);
+                document.getElementById("hours").value = f;
+                document.getElementById("hours-hidden").value = f;
               }
             }
           );
-        } else if (place.opening_hours && place.opening_hours.weekday_text) {
-          // Fallback: use data already returned by getPlace()
-          const formatted = formatOpeningHours(place.opening_hours.weekday_text);
-          document.getElementById("hours").value        = formatted;
-          document.getElementById("hours-hidden").value = formatted;
+        } else if (place.opening_hours?.weekday_text) {
+          const f = formatOpeningHours(place.opening_hours.weekday_text);
+          document.getElementById("hours").value = f;
+          document.getElementById("hours-hidden").value = f;
         }
       });
-
-      // Sync manual edits in visible field → hidden field
-      document.getElementById("hours").addEventListener("input", function () {
+      document.getElementById("hours").addEventListener("input", function() {
         document.getElementById("hours-hidden").value = this.value;
       });
     }
 
     function markerSvg() {
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44">
-        <filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".3"/></filter>
-        <path filter="url(#sh)"
-          d="M18 0C8.06 0 0 8.059 0 18c0 13.5 18 26 18 26S36 31.5 36 18C36 8.06 27.94 0 18 0z"
-          fill="#C8553D"/>
-        <circle cx="18" cy="17" r="8" fill="white" opacity=".92"/>
-      </svg>`;
-      return {
-        url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-        scaledSize: new google.maps.Size(36, 44),
-        anchor: new google.maps.Point(18, 44),
-      };
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44"><filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".3"/></filter><path filter="url(#sh)" d="M18 0C8.06 0 0 8.059 0 18c0 13.5 18 26 18 26S36 31.5 36 18C36 8.06 27.94 0 18 0z" fill="#C8553D"/><circle cx="18" cy="17" r="8" fill="white" opacity=".92"/></svg>';
+      return { url:"data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(svg), scaledSize:new google.maps.Size(36,44), anchor:new google.maps.Point(18,44) };
     }
 
     function placePin(latLng) {
       if (pinMarker) pinMarker.setMap(null);
-
-      pinMarker = new google.maps.Marker({
-        position: latLng,
-        map: pinMap,
-        icon: markerSvg(),
-        animation: google.maps.Animation.DROP,
-      });
-
-      const lat = latLng.lat().toFixed(6);
-      const lng = latLng.lng().toFixed(6);
-
+      pinMarker = new google.maps.Marker({ position:latLng, map:pinMap, icon:markerSvg(), animation:google.maps.Animation.DROP });
+      const lat = latLng.lat().toFixed(6), lng = latLng.lng().toFixed(6);
       document.getElementById("lat").value = lat;
       document.getElementById("lng").value = lng;
-
-      // Update map border
       document.getElementById("pin-map").classList.add("has-pin");
-
-      // Update status badge
-      const status = document.getElementById("location-status");
-      status.classList.add("pinned");
-      status.innerHTML = `
-        <span class="location-status-icon">📍</span>
-        <div class="location-status-text">
-          <strong>Pin placed</strong>
-          <span>${lat}, ${lng}</span>
-        </div>
-      `;
-
-      // Clear location error if shown
+      const st = document.getElementById("location-status");
+      st.classList.add("pinned");
+      st.innerHTML = '<span class="location-status-icon">📍</span><div class="location-status-text"><strong>Pin placed</strong><span>'+lat+', '+lng+'</span></div>';
       hideError("location-error");
     }
 
-    // ── Opening hours formatter ────────────────────────────────────────────────
-    function formatOpeningHours(weekdayText) {
-      const SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-      const parsed = weekdayText.map((text, i) => {
-        const idx = text.indexOf(": ");
-        return { day: SHORT[i], hours: idx >= 0 ? text.slice(idx + 2) : text };
-      });
-      const groups = [];
-      let start = 0;
-      for (let i = 1; i <= parsed.length; i++) {
-        if (i === parsed.length || parsed[i].hours !== parsed[start].hours) {
-          const end = i - 1;
-          const range = start === end ? SHORT[start] : `${SHORT[start]}–${SHORT[end]}`;
-          groups.push(`${range}: ${parsed[start].hours}`);
-          start = i;
+    function formatOpeningHours(wt) {
+      const S = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+      const p = wt.map((t,i) => { const x=t.indexOf(": "); return {day:S[i],hours:x>=0?t.slice(x+2):t}; });
+      const g=[]; let s=0;
+      for(let i=1;i<=p.length;i++){
+        if(i===p.length||p[i].hours!==p[s].hours){
+          g.push((s===i-1?S[s]:S[s]+"–"+S[i-1])+": "+p[s].hours); s=i;
         }
       }
-      return groups.join(", ");
+      return g.join(", ");
     }
 
-    // ── Photo upload ──────────────────────────────────────────────────────────
-    async function uploadPhoto(input) {
-      const file = input.files[0];
+    // Photo upload with resize (fixes portrait photo failures)
+    async function uploadPhoto(file) {
       if (!file) return;
+      const status  = document.getElementById("photo-status");
+      const preview = document.getElementById("photo-preview-img");
+      const zone    = document.getElementById("photo-drop-zone");
+      const content = document.getElementById("photo-drop-content");
+      const hint    = document.getElementById("photo-change-hint");
 
-      const statusEl  = document.getElementById("photo-status");
-      const previewEl = document.getElementById("photo-preview-img");
-
-      statusEl.textContent = "Uploading...";
-      statusEl.style.color = "#6B6560";
-
-      // プレビュー表示
-      previewEl.src = URL.createObjectURL(file);
-      previewEl.style.display = "block";
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = "block";
+      content.style.display = "none";
+      hint.style.display = "block";
+      zone.className = "photo-drop-zone uploading";
+      status.textContent = "Uploading…";
+      status.style.color = "#6B6560";
 
       try {
-        // リサイズしてbase64に変換（最大1600px）
         const base64 = await new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onerror = reject;
@@ -668,13 +408,13 @@
               const MAX = 1600;
               let w = img.width, h = img.height;
               if (w > MAX || h > MAX) {
-                if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-                else       { w = Math.round(w * MAX / h); h = MAX; }
+                if (w > h) { h = Math.round(h*MAX/w); w = MAX; }
+                else       { w = Math.round(w*MAX/h); h = MAX; }
               }
-              const canvas = document.createElement("canvas");
-              canvas.width = w; canvas.height = h;
-              canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-              resolve(canvas.toDataURL("image/jpeg", 0.85).split(",")[1]);
+              const c = document.createElement("canvas");
+              c.width=w; c.height=h;
+              c.getContext("2d").drawImage(img,0,0,w,h);
+              resolve(c.toDataURL("image/jpeg",0.85).split(",")[1]);
             };
             img.onerror = reject;
             img.src = reader.result;
@@ -682,134 +422,101 @@
           reader.readAsDataURL(file);
         });
 
-        // imgbbに直接アップロード（XHR使用）
-        await new Promise((resolve) => {
+        await new Promise(resolve => {
           const xhr = new XMLHttpRequest();
           const form = new FormData();
-          form.append("key", "84ed403c7cd3480fc4d6753c2426e2ff");
-          form.append("image", base64);
-          xhr.open("POST", "https://api.imgbb.com/1/upload");
+          form.append("key","84ed403c7cd3480fc4d6753c2426e2ff");
+          form.append("image",base64);
+          xhr.open("POST","https://api.imgbb.com/1/upload");
           xhr.onload = function() {
             try {
               const json = JSON.parse(xhr.responseText);
               if (json && json.success) {
                 document.getElementById("photo-url").value = json.data.url;
-                statusEl.textContent = "✓ Photo ready";
-                statusEl.style.color = "#22A06B";
-                if (dropZone) { dropZone.style.borderColor = "#22A06B"; }
-              } else {
-                statusEl.textContent = "Upload failed. You can still submit without a photo.";
-                statusEl.style.color = "#BF2010";
-              }
+                status.textContent = "✓ Photo ready";
+                status.style.color = "#22A06B";
+                zone.className = "photo-drop-zone done";
+              } else { throw new Error(); }
             } catch(e) {
-              statusEl.textContent = "Upload failed. You can still submit without a photo.";
-              statusEl.style.color = "#BF2010";
+              status.textContent = "Upload failed — you can still submit without a photo.";
+              status.style.color = "#BF2010";
+              zone.className = "photo-drop-zone error";
+              preview.style.display = "none";
+              content.style.display = "";
+              hint.style.display = "none";
             }
             resolve();
           };
           xhr.onerror = function() {
-            statusEl.textContent = "Upload failed. You can still submit without a photo.";
-            statusEl.style.color = "#BF2010";
+            status.textContent = "Upload failed — you can still submit without a photo.";
+            status.style.color = "#BF2010";
+            zone.className = "photo-drop-zone error";
+            preview.style.display = "none";
+            content.style.display = "";
+            hint.style.display = "none";
             resolve();
           };
           xhr.send(form);
         });
       } catch(err) {
-        statusEl.textContent = "Upload error: " + err.message;
-        statusEl.style.color = "#BF2010";
+        status.textContent = "Upload error: " + err.message;
+        status.style.color = "#BF2010";
+        zone.className = "photo-drop-zone error";
       }
     }
 
-
-
-
-    // ── Drag & drop + restore contributor name ────────────────────────────
+    // Drop zone interactions
     (function() {
-      const zone = document.getElementById("photo-drop-zone");
-      if (zone) {
-        zone.addEventListener("dragover", e => {
-          e.preventDefault();
-          zone.style.borderColor = "#BF2010";
-          zone.style.background  = "rgba(200,85,61,.04)";
-        });
-        zone.addEventListener("dragleave", () => {
-          zone.style.borderColor = "#E2DED8";
-          zone.style.background  = "#FAFAF7";
-        });
-        zone.addEventListener("drop", e => {
-          e.preventDefault();
-          zone.style.borderColor = "#E2DED8";
-          zone.style.background  = "#FAFAF7";
-          const file = e.dataTransfer.files[0];
-          if (file && file.type.startsWith("image/")) {
-            const inp = document.getElementById("photo-file-input");
-            try { const dt = new DataTransfer(); dt.items.add(file); inp.files = dt.files; } catch(ex) {}
-            uploadPhoto(inp);
-          }
-        });
-      }
-      const saved = localStorage.getItem("bitelocal_myname");
-      if (saved) { const el = document.getElementById("contributor"); if (el && !el.value) el.value = saved; }
+      const zone  = document.getElementById("photo-drop-zone");
+      const input = document.getElementById("photo-file-input");
+      zone.addEventListener("click", () => input.click());
+      input.addEventListener("change", () => { if (input.files[0]) uploadPhoto(input.files[0]); });
+      zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("dragover"); });
+      zone.addEventListener("dragleave", () => zone.classList.remove("dragover"));
+      zone.addEventListener("drop", e => {
+        e.preventDefault(); zone.classList.remove("dragover");
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith("image/")) {
+          try { const dt=new DataTransfer(); dt.items.add(file); input.files=dt.files; } catch(ex) {}
+          uploadPhoto(file);
+        }
+      });
     })();
 
-    // ── Character count ────────────────────────────────────────────────────────
-    const commentEl  = document.getElementById("comment");
-    const charCount  = document.getElementById("char-count");
-    const maxChars   = 300;
-
+    // Character count
+    const commentEl = document.getElementById("comment");
+    const charCount = document.getElementById("char-count");
     commentEl.addEventListener("input", () => {
       const len = commentEl.value.length;
-      charCount.textContent = `${len} / ${maxChars}`;
-      charCount.className = "char-count" +
-        (len >= maxChars ? " at-limit" : len >= maxChars * 0.85 ? " near-limit" : "");
+      charCount.textContent = len+" / 300";
+      charCount.className = "char-count"+(len>=300?" at-limit":len>=255?" near-limit":"");
     });
 
-    // ── Validation helpers ────────────────────────────────────────────────────
-    function showError(id)  { document.getElementById(id).classList.add("visible"); }
-    function hideError(id)  { document.getElementById(id).classList.remove("visible"); }
-    function markError(el)  { el.classList.add("error"); }
+    function showError(id) { document.getElementById(id).classList.add("visible"); }
+    function hideError(id) { document.getElementById(id).classList.remove("visible"); }
+    function markError(el) { el.classList.add("error"); }
     function clearError(el) { el.classList.remove("error"); }
 
-    // Clear error state on input
-    ["name", "comment"].forEach(id => {
-      document.getElementById(id).addEventListener("input", function () {
-        clearError(this);
-        hideError(id + "-error");
-      });
+    ["name","comment"].forEach(id => {
+      document.getElementById(id).addEventListener("input", function() { clearError(this); hideError(id+"-error"); });
     });
 
-    // ── Form submit ────────────────────────────────────────────────────────────
-    document.getElementById("submit-form").addEventListener("submit", async (e) => {
+    // Form submit
+    document.getElementById("submit-form").addEventListener("submit", async e => {
       e.preventDefault();
-
-      const name    = document.getElementById("name");
-      const comment = document.getElementById("comment");
-      const lat     = document.getElementById("lat").value;
+      const name     = document.getElementById("name");
+      const comment  = document.getElementById("comment");
+      const lat      = document.getElementById("lat").value;
       const category = document.querySelector('input[name="category"]:checked');
-
       let valid = true;
-
-      if (!name.value.trim()) {
-        markError(name); showError("name-error"); valid = false;
-      }
-      if (!category) {
-        showError("category-error"); valid = false;
-      }
-      if (!lat) {
-        showError("location-error"); valid = false;
-      }
-      if (!comment.value.trim()) {
-        markError(comment); showError("comment-error"); valid = false;
-      }
-
+      if (!name.value.trim())    { markError(name);    showError("name-error");     valid=false; }
+      if (!category)             {                      showError("category-error"); valid=false; }
+      if (!lat)                  {                      showError("location-error"); valid=false; }
+      if (!comment.value.trim()) { markError(comment); showError("comment-error");  valid=false; }
       if (!valid) {
-        // Scroll to first error
-        document.querySelector(".error, .field-error.visible")
-          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+        document.querySelector(".error,.field-error.visible")?.scrollIntoView({behavior:"smooth",block:"center"});
         return;
       }
-
-      // ── POST to Google Sheets via Apps Script ────────────────────────────
       const data = {
         name:          name.value.trim(),
         category:      category.value,
@@ -820,34 +527,30 @@
         price:         document.getElementById("price").value.trim(),
         comment:       comment.value.trim(),
         contributor:   document.getElementById("contributor").value.trim(),
-        instagram:     document.getElementById("instagram").value.trim(),        photos:        document.getElementById("photo-url").value || "",
+        instagram:     document.getElementById("instagram").value.trim(),
+        photos:        document.getElementById("photo-url").value || "",
         city:          urlCity,
       };
+      // Save to localStorage for next time
+      if (data.contributor) localStorage.setItem("bitelocal_myname",      data.contributor);
+      if (data.instagram)   localStorage.setItem("bitelocal_myinstagram", data.instagram);
 
       const btn = document.getElementById("submit-btn");
-      btn.disabled = true;
-      btn.textContent = "Submitting…";
-
-      if (data.contributor) localStorage.setItem("bitelocal_myname", data.contributor);
-
+      btn.disabled = true; btn.textContent = "Submitting…";
       fetch(GAS_URL, {
-        method:  "POST",
-        mode:    "no-cors",
-        headers: { "Content-Type": "text/plain" },
-        body:    JSON.stringify(data),
+        method:"POST", mode:"no-cors",
+        headers:{"Content-Type":"text/plain"},
+        body:JSON.stringify(data),
       }).finally(() => {
         document.getElementById("form-wrap").classList.add("submitted");
         document.getElementById("success-screen").classList.add("visible");
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({top:0,behavior:"smooth"});
       });
     });
   </script>
 
-  <script
-    async
-    defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5XRKHpjV-kiZALegNeLFYSdqixbFhnZI&libraries=places&callback=initMap&language=en"
-  ></script>
-
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5XRKHpjV-kiZALegNeLFYSdqixbFhnZI&libraries=places&callback=initMap&language=en">
+  </script>
 </body>
 </html>
