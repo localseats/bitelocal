@@ -593,7 +593,8 @@
       return {
         _row:          row._row || 0,
         name:          String(row.name          || "").trim(),
-        category:      String(row.category      || "restaurant").toLowerCase().trim(),
+        category:      String(row.category      || "restaurant").toLowerCase().split(",")[0].trim(),
+        categoryList:  String(row.category      || "restaurant").toLowerCase().split(",").map(c=>c.trim()),
         lat:           parseFloat(row.lat)  || 0,
         lng:           parseFloat(row.lng)  || 0,
         opening_hours: String(row.opening_hours || row.hours || "").trim(),
@@ -646,6 +647,7 @@
         if (!groups[spot.name]) {
           groups[spot.name] = {
             name: spot.name, category: spot.category,
+            categoryList: spot.categoryList,
             lat: spot.lat, lng: spot.lng,
             opening_hours: spot.opening_hours, price: spot.price,
             posts: []

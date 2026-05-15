@@ -65,7 +65,7 @@
       font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all .15s; user-select: none;
     }
     .pill:hover { border-color: var(--primary); color: var(--primary); background: rgba(200,85,61,.04); }
-    .category-pills input[type="radio"]:checked + .pill { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .category-pills input[type="checkbox"]:checked + .pill { background: var(--primary); border-color: var(--primary); color: #fff; }
     .map-instruction {
       display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-sub);
       padding: 9px 12px; margin-bottom: 10px; background: rgba(200,85,61,.06);
@@ -160,15 +160,15 @@
           <div class="form-group">
             <label>Category <span class="required-star">*</span></label>
             <div class="category-pills">
-              <input type="radio" name="category" id="cat-restaurant" value="restaurant">
+              <input type="checkbox" name="category" id="cat-restaurant" value="restaurant">
               <label class="pill" for="cat-restaurant">🍜 Restaurant</label>
-              <input type="radio" name="category" id="cat-cafe" value="cafe">
+              <input type="checkbox" name="category" id="cat-cafe" value="cafe">
               <label class="pill" for="cat-cafe">☕ Cafe</label>
-              <input type="radio" name="category" id="cat-bar" value="bar">
+              <input type="checkbox" name="category" id="cat-bar" value="bar">
               <label class="pill" for="cat-bar">🍺 Bar</label>
-              <input type="radio" name="category" id="cat-halal" value="halal">
+              <input type="checkbox" name="category" id="cat-halal" value="halal">
               <label class="pill" for="cat-halal">🌙 Halal</label>
-              <input type="radio" name="category" id="cat-vegetarian" value="vegetarian">
+              <input type="checkbox" name="category" id="cat-vegetarian" value="vegetarian">
               <label class="pill" for="cat-vegetarian">🥗 Vegetarian</label>
             </div>
             <div class="field-error" id="category-error">Please select a category.</div>
@@ -507,7 +507,7 @@
       const name     = document.getElementById("name");
       const comment  = document.getElementById("comment");
       const lat      = document.getElementById("lat").value;
-      const category = document.querySelector('input[name="category"]:checked');
+      const checkedCats = Array.from(document.querySelectorAll('input[name="category"]:checked'));
       let valid = true;
       if (!name.value.trim())    { markError(name);    showError("name-error");     valid=false; }
       if (!category)             {                      showError("category-error"); valid=false; }
@@ -519,7 +519,7 @@
       }
       const data = {
         name:          name.value.trim(),
-        category:      category.value,
+        category:      checkedCats.map(el => el.value).join(","),
         lat:           document.getElementById("lat").value,
         lng:           document.getElementById("lng").value,
         address:       document.getElementById("address").value.trim(),
