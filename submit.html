@@ -510,7 +510,7 @@
       const checkedCats = Array.from(document.querySelectorAll('input[name="category"]:checked'));
       let valid = true;
       if (!name.value.trim())    { markError(name);    showError("name-error");     valid=false; }
-      if (!category)             {                      showError("category-error"); valid=false; }
+      if (!checkedCats.length) { showError("category-error"); valid = false; }
       if (!lat)                  {                      showError("location-error"); valid=false; }
       if (!comment.value.trim()) { markError(comment); showError("comment-error");  valid=false; }
       if (!valid) {
