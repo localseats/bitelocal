@@ -678,8 +678,9 @@
               const json = JSON.parse(xhr.responseText);
               if (json && json.success) {
                 document.getElementById("photo-url").value = json.data.url;
-                statusEl.textContent = "✓ Photo uploaded successfully";
+                statusEl.textContent = "✓ Photo ready";
                 statusEl.style.color = "#22A06B";
+                if (dropZone) { dropZone.style.borderColor = "#22A06B"; }
               } else {
                 statusEl.textContent = "Upload failed. You can still submit without a photo.";
                 statusEl.style.color = "#BF2010";
@@ -704,6 +705,36 @@
     }
 
 
+
+
+    // ── Drag & drop + restore contributor name ────────────────────────────
+    (function() {
+      const zone = document.getElementById("photo-drop-zone");
+      if (zone) {
+        zone.addEventListener("dragover", e => {
+          e.preventDefault();
+          zone.style.borderColor = "#BF2010";
+          zone.style.background  = "rgba(200,85,61,.04)";
+        });
+        zone.addEventListener("dragleave", () => {
+          zone.style.borderColor = "#E2DED8";
+          zone.style.background  = "#FAFAF7";
+        });
+        zone.addEventListener("drop", e => {
+          e.preventDefault();
+          zone.style.borderColor = "#E2DED8";
+          zone.style.background  = "#FAFAF7";
+          const file = e.dataTransfer.files[0];
+          if (file && file.type.startsWith("image/")) {
+            const inp = document.getElementById("photo-file-input");
+            try { const dt = new DataTransfer(); dt.items.add(file); inp.files = dt.files; } catch(ex) {}
+            uploadPhoto(inp);
+          }
+        });
+      }
+      const saved = localStorage.getItem("bitelocal_myname");
+      if (saved) { const el = document.getElementById("contributor"); if (el && !el.value) el.value = saved; }
+    })();
 
     // ── Character count ────────────────────────────────────────────────────────
     const commentEl  = document.getElementById("comment");
@@ -780,6 +811,8 @@
       const btn = document.getElementById("submit-btn");
       btn.disabled = true;
       btn.textContent = "Submitting…";
+
+      if (data.contributor) localStorage.setItem("bitelocal_myname", data.contributor);
 
       fetch(GAS_URL, {
         method:  "POST",

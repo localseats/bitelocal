@@ -420,6 +420,7 @@
     <button class="chip" data-category="bar">🍺 Bar</button>
     <button class="chip" data-category="halal">🌙 Halal</button>
     <button class="chip" data-category="vegetarian">🥗 Vegetarian</button>
+    <button class="chip" data-category="mine">👤 My Spots</button>
   </div>
 
   <div class="map-placeholder" id="map-placeholder">
@@ -692,9 +693,24 @@
         activeCategory = chip.dataset.category;
         document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
         chip.classList.add("active");
-        markers.forEach(m => {
-          m.setVisible(activeCategory === "all" || m._data.category === activeCategory);
-        });
+        if (activeCategory === "mine") {
+          const myName = (localStorage.getItem("bitelocal_myname") || "").trim().toLowerCase();
+          if (!myName) {
+            alert("Submit a spot with your name first — then your posts appear here.");
+            document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+            document.querySelector('[data-category="all"]').classList.add("active");
+            activeCategory = "all";
+            markers.forEach(mk => mk.setVisible(true));
+            return;
+          }
+          markers.forEach(mk => {
+            mk.setVisible(mk._data.posts.some(p => (p.contributor||"").trim().toLowerCase() === myName));
+          });
+        } else {
+          markers.forEach(mk => {
+            mk.setVisible(activeCategory === "all" || mk._data.category === activeCategory);
+          });
+        }
       });
     });
 
@@ -751,9 +767,7 @@
 
         // 写真表示
         const photoHtml = post.photos
-          ? `<div style="width:100%;height:180px;overflow:hidden;border-radius:8px;margin-bottom:10px;">
-               <img src="${post.photos}" alt="" style="width:100%;height:100%;object-fit:cover;" loading="lazy" />
-             </div>`
+          ? `<img src="${post.photos}" alt="" style="width:100%;height:auto;max-height:280px;object-fit:contain;border-radius:8px;margin-bottom:10px;display:block;background:#F5F3F0;" loading="lazy" />`
           : "";
 
         card.innerHTML = `
@@ -797,9 +811,7 @@
         : "";
 
       const photoHtml = post.photos
-        ? `<div style="width:100%;height:200px;overflow:hidden;border-radius:10px;margin-bottom:16px;">
-             <img src="${post.photos}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" />
-           </div>`
+        ? `<img src="${post.photos}" style="width:100%;height:auto;max-height:320px;object-fit:contain;border-radius:10px;margin-bottom:16px;display:block;background:#F5F3F0;" loading="lazy" />`
         : "";
 
       const postIdx = currentPosts.indexOf(post);
