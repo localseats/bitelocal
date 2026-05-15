@@ -331,7 +331,7 @@ function renderCities(liveCities){
 
 renderCities([]);
 
-fetch('https://script.google.com/macros/s/AKfycbxOx6QRzdQ5Ewo-MRNMMoh_-wGCuLGGrTENG3skLKLFgERhUEJ4Y5EI0a5tmSrf3MzR_w/exec')
+fetch('https://script.google.com/macros/s/AKfycbwPUlcnKlSiFa9HobyqXBriJqLFOt-5L71ybHksAoUGhemy33fVR8A4F6iqKzlLkoD2TQ/exec')
   .then(function(r){return r.json();})
   .then(function(data){
     var spots = Array.isArray(data)?data:[];
@@ -346,7 +346,7 @@ fetch('https://script.google.com/macros/s/AKfycbxOx6QRzdQ5Ewo-MRNMMoh_-wGCuLGGrT
     document.getElementById('stat-cats').innerHTML='<span>5</span>';
   });
 
-fetch('https://script.google.com/macros/s/AKfycbxOx6QRzdQ5Ewo-MRNMMoh_-wGCuLGGrTENG3skLKLFgERhUEJ4Y5EI0a5tmSrf3MzR_w/exec')
+fetch('https://script.google.com/macros/s/AKfycbwPUlcnKlSiFa9HobyqXBriJqLFOt-5L71ybHksAoUGhemy33fVR8A4F6iqKzlLkoD2TQ/exec')
   .then(r=>r.json()).then(data=>{
     const s=Array.isArray(data)?data:[];
     count('stat-spots',s.length);

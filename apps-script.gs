@@ -67,6 +67,22 @@ function doGet(e) {
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
+
+    // 画像アップロードモード
+    if (data.action === 'uploadImage') {
+      var response = UrlFetchApp.fetch('https://api.imgbb.com/1/upload', {
+        method: 'post',
+        payload: {
+          key: '84ed403c7cd3480fc4d6753c2426e2ff',
+          image: data.image
+        }
+      });
+      var json = JSON.parse(response.getContentText());
+      return ContentService.createTextOutput(JSON.stringify(json))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // 通常の投稿保存モード
     var ss = SpreadsheetApp.openById(SHEET_ID);
     var sheet = ss.getSheetByName('Spots');
     sheet.appendRow([
