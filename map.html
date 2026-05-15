@@ -558,7 +558,7 @@
 
     let map;
     let markers = [];
-    let activeCategory = "all";
+    let activeFilters = new Set();
     let currentPosts   = [];
 
     function initMap() {
@@ -723,29 +723,53 @@
       });
     }
 
+    let activeFilters = new Set();
+
     document.querySelectorAll(".chip").forEach(chip => {
       chip.addEventListener("click", () => {
-        activeCategory = chip.dataset.category;
-        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-        chip.classList.add("active");
-        if (activeCategory === "mine") {
+        const cat = chip.dataset.category;
+
+        if (cat === "all") {
+          activeFilters.clear();
+          document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          markers.forEach(mk => mk.setVisible(true));
+          return;
+        }
+
+        if (cat === "mine") {
           const myName = (localStorage.getItem("bitelocal_myname") || "").trim().toLowerCase();
           if (!myName) {
-            alert("Submit a spot with your name first — then your posts appear here.");
-            document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-            document.querySelector('[data-category="all"]').classList.add("active");
-            activeCategory = "all";
-            markers.forEach(mk => mk.setVisible(true));
+            alert("Submit a spot with your name first.");
             return;
           }
-          markers.forEach(mk => {
-            mk.setVisible(mk._data.posts.some(p => (p.contributor||"").trim().toLowerCase() === myName));
-          });
-        } else {
-          markers.forEach(mk => {
-            mk.setVisible(activeCategory === "all" || mk._data.category === activeCategory);
-          });
         }
+
+        document.querySelector('.chip[data-category="all"]').classList.remove("active");
+
+        if (activeFilters.has(cat)) {
+          activeFilters.delete(cat);
+          chip.classList.remove("active");
+        } else {
+          activeFilters.add(cat);
+          chip.classList.add("active");
+        }
+
+        if (activeFilters.size === 0) {
+          document.querySelector('.chip[data-category="all"]').classList.add("active");
+          markers.forEach(mk => mk.setVisible(true));
+          return;
+        }
+
+        const myName = (localStorage.getItem("bitelocal_myname") || "").trim().toLowerCase();
+        markers.forEach(mk => {
+          const catList = mk._data.categoryList || [mk._data.category];
+          const visible = [...activeFilters].every(f => {
+            if (f === "mine") return myName && mk._data.posts.some(p => (p.contributor||"").trim().toLowerCase() === myName);
+            return catList.includes(f);
+          });
+          mk.setVisible(visible);
+        });
       });
     });
 
