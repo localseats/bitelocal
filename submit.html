@@ -666,23 +666,37 @@
           reader.readAsDataURL(file);
         });
 
-        // Apps Script経由でimgbbにアップロード
-        const res = await fetch(GAS_URL, {
-          method:  "POST",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({ action: "uploadImage", image: base64 })
+        // imgbbに直接アップロード（XHR使用）
+        await new Promise((resolve) => {
+          const xhr = new XMLHttpRequest();
+          const form = new FormData();
+          form.append("key", "84ed403c7cd3480fc4d6753c2426e2ff");
+          form.append("image", base64);
+          xhr.open("POST", "https://api.imgbb.com/1/upload");
+          xhr.onload = function() {
+            try {
+              const json = JSON.parse(xhr.responseText);
+              if (json && json.success) {
+                document.getElementById("photo-url").value = json.data.url;
+                statusEl.textContent = "✓ Photo uploaded successfully";
+                statusEl.style.color = "#22A06B";
+              } else {
+                statusEl.textContent = "Upload failed. You can still submit without a photo.";
+                statusEl.style.color = "#BF2010";
+              }
+            } catch(e) {
+              statusEl.textContent = "Upload failed. You can still submit without a photo.";
+              statusEl.style.color = "#BF2010";
+            }
+            resolve();
+          };
+          xhr.onerror = function() {
+            statusEl.textContent = "Upload failed. You can still submit without a photo.";
+            statusEl.style.color = "#BF2010";
+            resolve();
+          };
+          xhr.send(form);
         });
-
-        const json = await res.json();
-
-        if (json && json.success) {
-          document.getElementById("photo-url").value = json.data.url;
-          statusEl.textContent = "✓ Photo uploaded successfully";
-          statusEl.style.color = "#22A06B";
-        } else {
-          statusEl.textContent = "Upload failed. You can still submit without a photo.";
-          statusEl.style.color = "#BF2010";
-        }
       } catch(err) {
         statusEl.textContent = "Upload error: " + err.message;
         statusEl.style.color = "#BF2010";
